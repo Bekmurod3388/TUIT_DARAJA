@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('specalizations', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique();
             $table->string('name');
-            $table->string('number');
+            $table->text('description')->nullable();
+            $table->boolean('is_visible')->default(true);
             $table->timestamps();
         });
     }

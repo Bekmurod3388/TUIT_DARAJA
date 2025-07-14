@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'oneid' => [
+        'client_id' => env('ONEID_CLIENT_ID', 'ubtuit_uz'),
+        'client_secret' => env('ONEID_CLIENT_SECRET', ''),
+        'redirect' => env('ONEID_REDIRECT_URI', 'http://localhost:8000/oneid/callback'),
+    ],
+
 ];

@@ -18,8 +18,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'last_name',
+        'first_name',
+        'middle_name',
+        'phone',
         'password',
     ];
 
@@ -44,5 +46,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(\App\Models\Application::class);
     }
 }

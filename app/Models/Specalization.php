@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class Specalization extends Model
 {
     protected $table = 'specalizations';
-    protected $fillable = ['name','number'];
+    protected $fillable = ['code', 'name', 'description', 'is_visible'];
 }

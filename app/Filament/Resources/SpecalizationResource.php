@@ -23,11 +23,11 @@ class SpecalizationResource extends Resource
         return $form
             ->schema([
                 TextInput::make('number')
-                    ->label('Number')
+                    ->label('Raqam')
                     ->maxLength(10)
                     ->required(),
                 TextInput::make('name')
-                    ->label('Name')
+                    ->label('Nomi')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -37,8 +37,8 @@ class SpecalizationResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('number')->label('Number')->sortable()->searchable(),
-                TextColumn::make('name')->label('Name')->sortable()->searchable(),
+                TextColumn::make('number')->label('Raqam')->sortable()->searchable(),
+                TextColumn::make('name')->label('Nomi')->sortable()->searchable(),
             ])
             ->filters([
                 //
