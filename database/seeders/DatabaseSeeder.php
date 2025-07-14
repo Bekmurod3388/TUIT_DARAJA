@@ -15,11 +15,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'last_name' => 'Test',
-            'first_name' => 'User',
-            'middle_name' => 'Testovich',
-            'phone' => '+998901234567',
+        \App\Models\User::factory()->create([
+            'last_name' => 'test',
+            'first_name' => 'testov',
+            'middle_name' => 'testovich',
+            'phone' => '998901234567',
+            'password' => bcrypt('password'),
+            'role' => 'user',
         ]);
 
         \App\Models\User::factory()->create([
@@ -27,7 +29,7 @@ class DatabaseSeeder extends Seeder
             'first_name' => 'Test',
             'middle_name' => 'User',
             'phone' => '998999999999',
-            'password' => bcrypt('admin123'),
+            'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
     }
