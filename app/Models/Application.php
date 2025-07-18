@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Application extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'specalization_id',
@@ -21,6 +24,7 @@ class Application extends Model
         'direction_file',
         'receipt_file',
         'work_order_file',
+        'payment_status',
     ];
 
     public function user()

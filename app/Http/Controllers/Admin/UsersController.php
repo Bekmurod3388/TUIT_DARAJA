@@ -5,9 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UserUpdateRequest;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'superadmin'])) {
+                abort(403, 'Sizda admin panelga kirish huquqi yo‘q.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -24,11 +35,11 @@ class UsersController extends Controller
         return view('admin.edit-user', compact('user', 'editUser'));
     }
 
-    public function update(\Illuminate\Http\Request $request, $id)
+    public function update(UserUpdateRequest $request, $id)
     {
         $editUser = User::findOrFail($id);
         $this->authorize('update', $editUser);
-        $editUser->update($request->only(['last_name', 'first_name', 'middle_name', 'phone', 'role']));
+        $editUser->update($request->validated());
         return redirect()->route('admin.users')->with('success', 'Foydalanuvchi yangilandi!');
     }
 

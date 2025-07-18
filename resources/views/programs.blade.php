@@ -15,7 +15,9 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white shadow-lg flex flex-col items-center py-8">
         <div class="mb-6">
-            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed={{ urlencode($user->name ?? 'User') }}" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-amber-400 shadow">
+        <div class="w-24 h-24 flex items-center justify-center rounded-full border-4 border-amber-400 shadow bg-white text-6xl">
+                🧑‍💻
+            </div>
         </div>
         <div class="text-center mb-8">
             <div class="font-bold text-lg text-gray-800">{{ strtoupper($user->name ?? 'Foydalanuvchi') }}</div>
@@ -63,20 +65,34 @@
                     <thead>
                         <tr class="bg-gray-100">
                             <th class="px-4 py-2 text-center">#</th>
+                            <th class="px-4 py-2 text-center">Fanlar</th>
                             <th class="px-4 py-2 text-center">Nomi</th>
                             <th class="px-4 py-2 text-center">Raqami</th>
+                            <th class="px-4 py-2 text-center">To'lov summasi (so'mda)</th>
+                            <th class="px-4 py-2 text-center">Qo'shilgan vaqt</th>
                         </tr>
                     </thead>
                     <tbody>
                     @forelse($programs as $program)
                         <tr>
                             <td class="px-4 py-2 text-center">{{ $program->id }}</td>
+                            <td class="px-4 py-2 text-center">
+                                @if($program->subjects && count($program->subjects))
+                                    @foreach($program->subjects as $subject)
+                                        <span class="inline-block bg-amber-100 text-amber-800 rounded px-2 py-1 text-xs font-semibold mr-1 mb-1">{{ $subject->fan ?? $subject->name }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-2 text-center">{{ $program->name }}</td>
-                            <td class="px-4 py-2 text-center">{{ $program->number }}</td>
+                            <td class="px-4 py-2 text-center">{{ $program->code }}</td>
+                            <td class="px-4 py-2 text-center">{{ number_format($program->price, 0, ",", " ") }}</td>
+                            <td class="px-4 py-2 text-center">{{ $program->created_at ? $program->created_at->format('Y-m-d H:i') : '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center text-gray-500 py-4">Dasturlar topilmadi</td>
+                            <td colspan="4" class="text-center text-gray-500 py-4">Dasturlar topilmadi</td>
                         </tr>
                     @endforelse
                     </tbody>

@@ -23,6 +23,7 @@ class User extends Authenticatable
         'middle_name',
         'phone',
         'password',
+        'role', // qo'shildi
     ];
 
     /**

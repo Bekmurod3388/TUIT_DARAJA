@@ -1,6 +1,8 @@
 <aside class="w-64 bg-white shadow-lg flex flex-col items-center py-8">
     <div class="mb-6">
-        <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Admin" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-blue-400 shadow">
+        <div class="w-24 h-24 flex items-center justify-center rounded-full border-4 border-blue-400 shadow bg-white text-6xl text-blue-600">
+            🛡️
+        </div>
     </div>
     <div class="text-center mb-8">
         <div class="font-bold text-lg text-gray-800">ADMIN PANEL</div>
@@ -14,6 +16,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
                     </svg>
                     Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.subjects') }}" class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.subjects*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-700' }}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Fanlar
                 </a>
             </li>
             <li>
@@ -38,6 +48,23 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6" />
                     </svg>
                     Arizalar
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.commissions') }}" class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.commissions*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-700' }}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6" />
+                    </svg>
+                    Komissiya
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.program-names.index') }}" class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.program-names*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-700' }}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0 0H5a2 2 0 01-2-2V6a2 2 0 012-2h7" />
+                    </svg>
+                    Dastur nomlari
                 </a>
             </li>
         </ul>

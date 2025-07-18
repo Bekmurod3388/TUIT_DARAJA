@@ -112,6 +112,13 @@
             <div class="mt-4 text-center">
                 <a href="{{ route('register') }}" class="text-amber-700 hover:underline">Ro‘yxatdan o‘tish</a>
             </div>
+            <a href="{{ route('oneid.login') }}" class="w-full flex items-center justify-center mb-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                OneID orqali kirish
+            </a>
         </div>
 
             <!-- Footer -->

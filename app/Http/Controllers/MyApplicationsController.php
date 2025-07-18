@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Application;
 use App\Models\Specalization;
 use App\Http\Requests\ApplicationRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MyApplicationsController extends Controller
 {
@@ -14,7 +16,7 @@ class MyApplicationsController extends Controller
     {
         $user = Auth::user();
         $applications = $user->applications()->with('specalization')->get();
-        $specalizations = \App\Models\Specalization::where('is_visible', true)->get();
+        $specalizations = \App\Models\Specalization::where('is_visible', true)->with('subjects')->get();
         return view('my-applications', compact('user', 'applications', 'specalizations'));
     }
 
@@ -80,5 +82,62 @@ class MyApplicationsController extends Controller
         ]);
         $application->update($validated);
         return redirect()->route('my.applications')->with('success', 'Ariza muvaffaqiyatli yangilandi!');
+    }
+
+    // Payme to'lovini boshlash
+    public function pay($id)
+    {
+        $application = \App\Models\Application::findOrFail($id);
+        if ($application->payment_status === 'paid') {
+            return redirect()->route('my.applications')->with('success', 'To‘lov allaqachon amalga oshirilgan!');
+        }
+        $amount = $application->specalization->price * 100; // so'm -> tiyin
+        $merchant_id = config('services.payme.merchant_id');
+        $callback_url = config('services.payme.callback_url');
+        // Payme payment linkini generatsiya qilish (soddalashtirilgan)
+        $payme_url = "https://checkout.paycom.uz/" .
+            "?merchant=$merchant_id" .
+            "&amount=$amount" .
+            "&account[order_id]={$application->id}" .
+            "&callback=$callback_url";
+        return redirect($payme_url);
+    }
+
+    // Payme callback (notification)
+    public function paymeCallback(Request $request)
+    {
+        $orderId = $request->input('account.order_id');
+        $application = \App\Models\Application::find($orderId);
+        if ($application) {
+            $application->payment_status = 'paid';
+            $application->save();
+        }
+        return response()->json(['result' => 'ok']);
+    }
+
+    public function certificate($id)
+    {
+        $application = \App\Models\Application::with('specalization')->findOrFail($id);
+        $user = Auth::user();
+        // Only owner or admin can download
+        if (!($user->id === $application->user_id || in_array($user->role, ['admin', 'superadmin']))) {
+            abort(403, 'Sizda bu sertifikatni yuklab olish huquqi yo‘q!');
+        }
+        if (!$application->is_scored) {
+            abort(403, 'Sertifikat faqat baholangan arizalar uchun!');
+        }
+        $qrData = [
+            'id' => $application->id,
+            'fio' => $application->last_name.' '.$application->first_name.' '.$application->middle_name,
+            'score' => $application->score,
+            'spec' => $application->specalization->name ?? '',
+            'date' => $application->updated_at->format('Y-m-d'),
+        ];
+        $qrSvg = QrCode::format('svg')->size(120)->generate(json_encode($qrData));
+        $pdf = Pdf::loadView('certificate', [
+            'application' => $application,
+            'qrSvg' => $qrSvg,
+        ]);
+        return $pdf->download('sertifikat_'.$application->id.'.pdf');
     }
 }

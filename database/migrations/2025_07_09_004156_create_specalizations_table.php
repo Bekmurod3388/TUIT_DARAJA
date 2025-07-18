@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('specalizations', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
+            $table->foreignId('program_name_id')->constrained('program_names')->onDelete('cascade');
+            $table->string('code');
             $table->string('name');
-            $table->text('description')->nullable();
+            $table->text('description');
+            $table->integer('price')->default(0); // to'lov summasi (so'mda)
             $table->boolean('is_visible')->default(true);
             $table->timestamps();
         });

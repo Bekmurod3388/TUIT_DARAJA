@@ -16,7 +16,9 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white shadow-lg flex flex-col items-center py-8">
         <div class="mb-6">
-            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed={{ urlencode($user->name ?? 'User') }}" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-amber-400 shadow">
+            <div class="w-24 h-24 flex items-center justify-center rounded-full border-4 border-amber-400 shadow bg-white text-6xl">
+                🧑‍💻
+            </div>
         </div>
         <div class="text-center mb-8">
             <div class="font-bold text-lg text-gray-800">{{ strtoupper($user->name ?? 'Foydalanuvchi') }}</div>
@@ -73,7 +75,7 @@
                     </ul>
                 </div>
             @endif
-            <div x-data="{ open: false }">
+            <div x-data="{ open: {{ $errors->any() ? 'true' : 'false' }} }">
                 @if($specalizations->isEmpty())
                 <div class="mb-4 flex justify-between items-center">
                     <span class="text-green-600 font-semibold">Ariza yuborish muddati tugagan!</span>
@@ -97,6 +99,17 @@
                         <div class="text-base text-gray-700 mb-8 text-center">
                             Ma'lumotlarni lotin yozuvida kiriting, yuklangan fayllaringiz PDF formatda va 2 mb dan oshmasligi kerak hamda bitta fandan faqat bir marta ariza qoldirish mumkin! So'ralgan barcha maydonlarni to'ldiring!
                         </div>
+                        @if ($errors->any())
+                            <div class="mb-4">
+                                <div class="text-red-600 font-semibold">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
                         <form method="POST" action="{{ route('applications.store') }}" enctype="multipart/form-data" class="space-y-10">
                             @csrf
                             <fieldset class="border rounded-2xl p-8 mb-6 bg-gray-50">
@@ -118,16 +131,16 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                                     <div>
                                         <label class="block text-base font-semibold mb-2">Ixtisoslik nomi:</label>
-                                        <select name="specalization_id" class="form-input w-full rounded-xl border-2 border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-lg h-12 px-4" required>
+                                        <select name="specalization_id" id="specalization-select" class="form-input w-full rounded-xl border-2 border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-lg h-12 px-4" required>
                                             <option value="">Barchasi</option>
                                             @foreach($specalizations as $spec)
-                                                <option value="{{ $spec->id }}">{{ $spec->name }}</option>
+                                                <option value="{{ $spec->id }}" data-subjects='@json($spec->subjects->pluck("fan", "fan_id"))'>{{ $spec->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div>
                                         <label class="block text-base font-semibold mb-2">Ta'lim turi:</label>
-                                        <select name="education_type" class="form-input w-full rounded-xl border-2 border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-lg h-12 px-4">
+                                        <select name="education_type" class="form-input w-full rounded-xl border-2 border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-lg h-12 px-4" required>
                                             <option value="">Ta'lim turini tanlang</option>
                                             <option value="Mustaqil izlanuvchi (PhD)">Mustaqil izlanuvchi (PhD)</option>
                                             <option value="Doktorantura (DSc)">Doktorantura (DSc)</option>
@@ -137,7 +150,9 @@
                                     </div>
                                     <div>
                                         <label class="block text-base font-semibold mb-2">Fan nomi:</label>
-                                        <input type="text" name="subject" class="form-input w-full rounded-xl border-2 border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-lg h-12 px-4" required value="{{ old('subject') }}">
+                                        <select name="subject" id="subject-select" class="form-input w-full rounded-xl border-2 border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-lg h-12 px-4" required>
+                                            <option value="">Fan tanlang</option>
+                                        </select>
                                     </div>
                                 </div>
                             </fieldset>
@@ -145,10 +160,10 @@
                                 <legend class="font-semibold text-gray-700 px-2 text-lg">Tashkilot</legend>
                                 <div class="flex items-center gap-8 mb-6">
                                     <label class="flex items-center text-base font-semibold">
-                                        <input type="radio" name="organization_type" value="uzmu" x-model="org" class="mr-2 rounded text-amber-600 focus:ring-amber-500 h-5 w-5"> TATU
+                                        <input type="radio" name="organization_type" value="uzmu" x-model="org" class="mr-2 rounded text-amber-600 focus:ring-amber-500 h-5 w-5" required> TATU
                                     </label>
                                     <label class="flex items-center text-base font-semibold">
-                                        <input type="radio" name="organization_type" value="other" x-model="org" class="mr-2 rounded text-amber-600 focus:ring-amber-500 h-5 w-5"> Boshqa tashkilot
+                                        <input type="radio" name="organization_type" value="other" x-model="org" class="mr-2 rounded text-amber-600 focus:ring-amber-500 h-5 w-5" required> Boshqa tashkilot
                                     </label>
                                 </div>
                                 <!-- O'zbekiston Milliy Universiteti uchun -->
@@ -192,12 +207,12 @@
                                     </div>
                                     <div>
                                         <label class="block text-base font-semibold mb-2">Yo'llanma xati</label>
-                                        <input type="file" name="direction_file" class="form-input w-full rounded-xl border-2 border-amber-400 focus:border-amber-500 focus:ring-amber-500" accept="application/pdf">
+                                        <input type="file" name="direction_file" class="form-input w-full rounded-xl border-2 border-amber-400 focus:border-amber-500 focus:ring-amber-500" accept="application/pdf" :required="org === 'other'">
                                     </div>
                                     <div class="col-span-2">
                                         <label class="block text-base font-semibold mb-2">Kvitansiya PDF/JPEG</label>
                                         <span class="text-red-600 text-sm font-semibold block mb-2">Qo'shimcha fanlar uchun to'lov olinmaydi</span>
-                                        <input type="file" name="receipt_file" class="form-input w-full rounded-xl border-2 border-amber-400 focus:border-amber-500 focus:ring-amber-500" accept="application/pdf,image/jpeg">
+                                        <input type="file" name="receipt_file" class="form-input w-full rounded-xl border-2 border-amber-400 focus:border-amber-500 focus:ring-amber-500" accept="application/pdf,image/jpeg" :required="org === 'other'">
                                     </div>
                                 </div>
                             </fieldset>
@@ -217,7 +232,7 @@
                             <th class="px-4 py-2 text-center">ID</th>
                             <th class="px-4 py-2 text-center">FIO</th>
                             <th class="px-4 py-2 text-center">Yo‘nalish</th>
-                            <th class="px-4 py-2 text-center">Tashkilot</th>
+                            <th class="px-4 py-2 text-center">Sertifikat</th>
                             <th class="px-4 py-2 text-center">Fan nomi</th>
                             <th class="px-4 py-2 text-center">Status</th>
                             <th class="px-4 py-2 text-center">Amal</th>
@@ -229,28 +244,27 @@
                             <td class="px-4 py-2 text-center">{{ $app->id }}</td>
                             <td class="px-4 py-2 text-center">{{ $app->last_name }} {{ $app->first_name }} {{ $app->middle_name }}</td>
                             <td class="px-4 py-2 text-center">{{ $app->specalization->name ?? '-' }}</td>
-                            <td class="px-4 py-2 text-center">{{ $app->organization }}</td>
+                            <td class="px-4 py-2 text-center">
+                                @if($app->payment_status === 'paid' && $app->is_scored && $app->status === 'accepted')
+                                    <a href="{{ route('applications.certificate', $app->id) }}" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded font-semibold" target="_blank">Yuklab olish</a>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-2 text-center">{{ $app->subject }}</td>
                             <td class="px-4 py-2 text-center">
-                                @php
-                                    $statusUz = [
-                                        'pending' => 'Jarayonda',
-                                        'accepted' => 'Qabul qilindi',
-                                        'cancelled' => 'Bekor qilindi',
-                                    ];
-                                    $statusColors = [
-                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                        'accepted' => 'bg-green-100 text-green-800',
-                                        'cancelled' => 'bg-red-100 text-red-800',
-                                    ];
-                                    $status = $app->status;
-                                @endphp
-                                <span class="font-semibold px-6 py-3 rounded text-base min-w-[120px] text-center inline-block {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
-                                    {{ $statusUz[$status] ?? 'Jarayonda' }}
-                                </span>
+                                @if($app->payment_status === 'paid')
+                                    <span class="inline-block bg-green-100 text-green-800 rounded px-2 py-1 text-xs font-semibold">To'langan</span>
+                                @else
+                                    <span class="inline-block bg-yellow-100 text-yellow-800 rounded px-2 py-1 text-xs font-semibold">To'lanmagan</span>
+                                @endif
                             </td>
                             <td class="px-4 py-2 text-center">
-                                <a href="{{ route('applications.edit', $app->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-semibold">Tahrirlash</a>
+                                @if($app->payment_status !== 'paid')
+                                    <a href="{{ route('applications.pay', $app->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Payme orqali to'lash</a>
+                                @else
+                                    <span class="text-green-600 font-semibold">✔</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -267,5 +281,26 @@
         </div>
     </main>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const specSelect = document.getElementById('specalization-select');
+        const subjectSelect = document.getElementById('subject-select');
+        function updateSubjects() {
+            const selected = specSelect.options[specSelect.selectedIndex];
+            const subjects = selected.getAttribute('data-subjects');
+            let options = '<option value="">Fan tanlang</option>';
+            if (subjects) {
+                const subjectsObj = JSON.parse(subjects);
+                for (const [id, name] of Object.entries(subjectsObj)) {
+                    options += `<option value="${name}">${name}</option>`;
+                }
+            }
+            subjectSelect.innerHTML = options;
+        }
+        specSelect.addEventListener('change', updateSubjects);
+        // Dastlabki yuklashda ham to'g'ri chiqsin
+        updateSubjects();
+    });
+</script>
 </body>
 </html> 

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('organization');
             $table->string('subject');
             $table->string('status')->default('pending');
+            $table->string('payment_status')->default('pending');
             $table->timestamps();
         });
     }

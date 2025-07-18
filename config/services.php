@@ -36,9 +36,17 @@ return [
     ],
 
     'oneid' => [
-        'client_id' => env('ONEID_CLIENT_ID', 'ubtuit_uz'),
-        'client_secret' => env('ONEID_CLIENT_SECRET', ''),
-        'redirect' => env('ONEID_REDIRECT_URI', 'http://localhost:8000/oneid/callback'),
+        'client_id' => env('ONEID_CLIENT_ID'),
+        'client_secret' => env('ONEID_CLIENT_SECRET'),
+        'redirect' => env('ONEID_REDIRECT_URI'),
+        'scope' => env('ONEID_SCOPE'),
+        'auth_url' => env('ONEID_AUTH_URL'),
+    ],
+
+    'payme' => [
+        'merchant_id' => env('PAYME_MERCHANT_ID'),
+        'key' => env('PAYME_KEY'),
+        'callback_url' => env('PAYME_CALLBACK_URL'),
     ],
 
 ];

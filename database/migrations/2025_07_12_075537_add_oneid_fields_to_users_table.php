@@ -23,7 +23,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['oneid_id', 'oneid_token']);
+            try {
+                $table->dropUnique(['oneid_id']);
+            } catch (\Throwable $e) {
+                // SQLite yoki boshqa xatolarni e'tiborsiz qoldiramiz
+            }
+            if (Schema::hasColumn('users', 'oneid_id')) {
+                $table->dropColumn('oneid_id');
+            }
+            if (Schema::hasColumn('users', 'oneid_token')) {
+                $table->dropColumn('oneid_token');
+            }
         });
     }
 };

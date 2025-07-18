@@ -3,65 +3,74 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 
 class OneIdController extends Controller
 {
-    public function redirectToOneId()
+    public function redirectToOneId(Request $request)
     {
-        return Socialite::driver('oneid')
-            ->with(['client_id' => 'ubtuit_uz'])
-            ->redirect();
+        $query = http_build_query([
+            'response_type' => 'one_code',
+            'client_id' => config('services.oneid.client_id'),
+            'redirect_uri' => config('services.oneid.redirect'),
+            'scope' => config('services.oneid.scope'),
+            'state' => csrf_token(),
+        ]);
+        return redirect(config('services.oneid.auth_url') . '?' . $query);
     }
 
     public function handleOneIdCallback(Request $request)
     {
-        try {
-            // EGOV ID callback parameters
-            $clientId = $request->get('client_id');
-            $tokenId = $request->get('token_id');
-            $method = $request->get('method');
+        $code = $request->input('code');
+        $state = $request->input('state');
 
-            if (!$tokenId) {
-                throw new \Exception('Token ID topilmadi');
+        // 1. Access token olish
+        $tokenResponse = Http::asForm()->post(config('services.oneid.auth_url'), [
+            'grant_type' => 'one_authorization_code',
+            'client_id' => config('services.oneid.client_id'),
+            'client_secret' => config('services.oneid.client_secret'),
+            'code' => $code,
+            'redirect_uri' => config('services.oneid.redirect'),
+        ]);
+
+        if (!$tokenResponse->ok() || !isset($tokenResponse['access_token'])) {
+            return redirect()->route('login')->withErrors(['oneid' => 'OneID orqali avtorizatsiya muvaffaqiyatsiz tugadi.']);
             }
 
-            // EGOV ID user ma'lumotlarini olish
-            $response = $this->getHttpClient()->get("https://id.egov.uz/api/user/info", [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $tokenId,
-                    'Client-ID' => $clientId,
-                ],
+        $accessToken = $tokenResponse['access_token'];
+
+        // 2. Foydalanuvchi ma’lumotlarini olish
+        $userResponse = Http::asForm()->post(config('services.oneid.auth_url'), [
+            'grant_type' => 'one_access_token_identify',
+            'client_id' => config('services.oneid.client_id'),
+            'client_secret' => config('services.oneid.client_secret'),
+            'access_token' => $accessToken,
+            'scope' => config('services.oneid.scope'),
             ]);
 
-            $userData = json_decode($response->getBody(), true);
+        if (!$userResponse->ok() || !isset($userResponse['pin'])) {
+            return redirect()->route('login')->withErrors(['oneid' => 'OneID foydalanuvchi ma’lumotlarini olishda xatolik.']);
+        }
 
-            // Foydalanuvchini yaratish yoki yangilash
-            $fullName = explode(' ', $userData['full_name'] ?? $userData['name'] ?? '');
-            $user = User::updateOrCreate([
-                'oneid_id' => $userData['user_id'] ?? $userData['id'] ?? $tokenId,
-            ], [
-                'oneid_token' => $tokenId,
+        // 3. Foydalanuvchini topish yoki yaratish
+        $user = User::where('oneid_id', $userResponse['user_id'])->orWhere('phone', $userResponse['pin'])->first();
+        if (!$user) {
+            $user = User::create([
+                'oneid_id' => $userResponse['user_id'],
+                'phone' => $userResponse['pin'],
+                'first_name' => $userResponse['first_name'] ?? '',
+                'last_name' => $userResponse['sur_name'] ?? '',
+                'middle_name' => $userResponse['mid_name'] ?? '',
                 'password' => bcrypt(str()->random(16)),
-                'last_name' => $fullName[0] ?? '',
-                'first_name' => $fullName[1] ?? '',
-                'middle_name' => $fullName[2] ?? '',
-                'phone' => isset($userData['phone']) ? preg_replace('/\D/', '', $userData['phone']) : '',
+                'role' => 'user',
             ]);
+        }
 
             Auth::login($user);
 
-            return redirect()->intended('/my-applications');
-        } catch (\Exception $e) {
-            return redirect('/login')->withErrors(['error' => 'EGOV ID bilan kirishda xatolik: ' . $e->getMessage()]);
-        }
-    }
-
-    private function getHttpClient()
-    {
-        return new \GuzzleHttp\Client();
+        return redirect()->route('my.applications');
     }
 }
