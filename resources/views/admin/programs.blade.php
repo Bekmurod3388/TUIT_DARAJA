@@ -15,6 +15,7 @@
                 <th class="px-4 py-2 text-center">To'lov summasi (so'mda)</th>
                 <th class="px-4 py-2 text-center">Fanlar</th>
                 <th class="px-4 py-2 text-center">Yaratilgan vaqt</th>
+                <th class="px-4 py-2 text-center">Ko‘rsatish</th>
                 <th class="px-4 py-2 text-center">Tahrirlash</th>
                 <th class="px-4 py-2 text-center">O‘chirish</th>
             </tr>
@@ -32,6 +33,15 @@
                     @endforeach
                 </td>
                 <td class="px-4 py-2 text-center">{{ $program->created_at ? $program->created_at->format('Y-m-d H:i') : '-' }}</td>
+                <td class="px-4 py-2 text-center">
+                    <form method="POST" action="{{ route('admin.programs.update', $program->id) }}" style="display:inline-block">
+                        @csrf
+                        <input type="hidden" name="is_visible" value="{{ $program->is_visible ? 0 : 1 }}">
+                        <button type="submit" class="px-3 py-1 rounded font-semibold {{ $program->is_visible ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-700' }}">
+                            {{ $program->is_visible ? 'Ko‘rsatilmoqda' : 'Yashirilgan' }}
+                        </button>
+                    </form>
+                </td>
                 <td class="px-4 py-2 text-center">
                     <a href="{{ route('admin.programs.edit', $program->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-semibold">Tahrirlash</a>
                 </td>

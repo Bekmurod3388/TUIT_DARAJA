@@ -44,7 +44,7 @@ class ProgramsController extends Controller
             'code' => $programName->code,
             'price' => $validated['price'],
             'description' => $validated['description'],
-            'is_visible' => $request->boolean('is_visible'),
+            'is_visible' => $request->has('is_visible') ? $request->boolean('is_visible') : true,
         ]);
         $program->subjects()->sync($validated['subjects']);
         return redirect()->route('admin.programs')->with('success', 'Dastur yaratildi!');
@@ -59,10 +59,26 @@ class ProgramsController extends Controller
         return view('admin.edit-program', compact('program', 'subjects', 'selectedSubjects', 'programNames'));
     }
 
-    public function update(ProgramRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validated();
         $program = Specalization::findOrFail($id);
+
+        // Faqat is_visible ni o'zgartirish uchun (masalan, ko'rsatish tugmasi)
+        if ($request->has('is_visible') && count($request->all()) <= 3) { // _token, is_visible, _method
+            $program->is_visible = $request->boolean('is_visible');
+            $program->save();
+            return redirect()->route('admin.programs')->with('success', 'Ko‘rsatish holati yangilandi!');
+        }
+
+        // To'liq update uchun
+        $validated = $request->validate([
+            'program_name_id' => 'required|exists:program_names,id',
+            'price' => 'required|integer|min:0',
+            'description' => 'required|string',
+            'subjects' => 'required|array',
+            'subjects.*' => 'exists:subjects,fan_id',
+            'is_visible' => 'nullable|boolean',
+        ]);
         $programName = ProgramName::findOrFail($validated['program_name_id']);
         $program->update([
             'program_name_id' => $programName->id,
