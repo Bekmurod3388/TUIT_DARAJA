@@ -5,8 +5,17 @@ storage/logs
 storage/framework/cache
 storage/framework/sessions
 storage/framework/views
+bootstrap/cache/*.php
 .env
+.env.testing
+.env.temp
 .idea
 .vscode
 npm-debug.log
 yarn.lock
+.phpunit.result.cache
+phpunit.xml
+tests
+restore.py
+tuit
+TiOneID.docx

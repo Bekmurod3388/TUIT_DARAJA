@@ -74,12 +74,55 @@ php artisan serve
 
 ### Docker bilan ishga tushirish
 
+Lokal development uchun:
+
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
 Bu MySQL (8.4), PHP va Nginx konteynerlarini ishga tushiradi.  
 Port: `http://localhost:8081`
+
+### Production Docker Deploy
+
+Server uchun alohida production stack mavjud:
+
+```bash
+cp .env.production.example .env.production
+```
+
+`.env.production` ichida kamida quyidagilarni to'ldiring:
+
+- `APP_KEY`
+- `APP_URL`
+- `DB_DATABASE`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `MYSQL_ROOT_PASSWORD`
+- `PAYME_*`
+- `ONEID_*`
+
+Keyin:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+```
+
+Foydali buyruqlar:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
+docker compose --env-file .env.production -f docker-compose.prod.yml exec php php artisan migrate --force
+```
+
+Production stack xususiyatlari:
+
+- PHP image `no-dev` dependency bilan build bo'ladi
+- test fayllari va lokal artefaktlar image'ga kirmaydi
+- Nginx alohida production config bilan ishlaydi
+- OPCache production rejimda `validate_timestamps=0`
+- `route:cache`, `config:cache`, `view:cache` start vaqtida qo'llanadi
 
 ---
 

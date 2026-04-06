@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.3-fpm AS base
 
 # System packages for PHP extensions (Debian, php:8.3-fpm)
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,4 +42,31 @@ RUN chmod +x /usr/local/bin/entrypoint.sh \
     && sed -i 's/\r$//' /usr/local/bin/entrypoint.sh
 
 EXPOSE 9000
+
+FROM base AS development
+CMD ["/usr/local/bin/entrypoint.sh"]
+
+FROM base AS production
+
+COPY . /var/www/TUIT_DARAJA
+COPY docker/php/opcache.prod.ini /usr/local/etc/php/conf.d/zz-opcache-production.ini
+
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
+        --no-dev \
+        --no-interaction \
+        --prefer-dist \
+        --optimize-autoloader \
+        --classmap-authoritative \
+        --no-scripts \
+    && mkdir -p \
+        storage/app/private \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
+    && rm -f bootstrap/cache/*.php \
+    && php artisan package:discover --ansi \
+    && chown -R www-data:www-data storage bootstrap/cache
+
 CMD ["/usr/local/bin/entrypoint.sh"]

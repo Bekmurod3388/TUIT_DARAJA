@@ -1,33 +1,27 @@
 <?php
 
+use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\OneIdController;
 
-Route::get('/lang/{locale}', function ($locale) {
-    if (in_array($locale, ['uz', 'ru', 'en'])) {
-        session()->put('locale', $locale);
-    }
-    return redirect()->back();
-})->name('language.switch');
+Route::get('/lang/{locale}', [LocaleController::class, 'update'])->name('language.switch');
 
 // --- Public routes ---
-Route::get('/', fn() => redirect()->route('login'));
+Route::redirect('/', '/login');
 
 // --- User authentication ---
-Route::get('/login', fn() => view('auth.login'))->name('login');
-Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login'])
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])
     ->middleware('throttle:5,1')
     ->name('login.post');
 Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register'])
     ->middleware('throttle:5,1')
     ->name('register.post');
-Route::post('/logout', function (\Illuminate\Http\Request $request) {
-    \Illuminate\Support\Facades\Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/login');
-})->name('logout');
+Route::post('/logout', LogoutController::class)->name('logout');
 
 // --- EGOV ID Authentication ---
 Route::get('/oneid/login', [OneIdController::class, 'redirectToOneId'])->name('oneid.login');
@@ -57,12 +51,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Admin\LoginController::class, 'login'])
         ->middleware('throttle:5,1')
         ->name('admin.login.post');
-    Route::post('/logout', function (\Illuminate\Http\Request $request) {
-        \Illuminate\Support\Facades\Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/admin/login');
-    })->name('admin.logout');
+    Route::post('/logout', AdminLogoutController::class)->name('admin.logout');
 });
 
 // --- Admin panel (protected) ---

@@ -25,6 +25,7 @@ services:
         build:
             context: .
             dockerfile: ./docker/php/Dockerfile
+            target: development
         volumes:
             - .:/var/www/TUIT_DARAJA
         environment:
