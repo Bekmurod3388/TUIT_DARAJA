@@ -17,6 +17,10 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        $request->merge([
+            'phone' => User::normalizePhone($request->input('phone')),
+        ]);
+
         $validated = $request->validate([
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
@@ -31,9 +35,12 @@ class RegisterController extends Controller
             'middle_name' => $validated['middle_name'],
             'phone' => $validated['phone'],
             'password' => Hash::make($validated['password']),
+            'role' => 'user',
         ]);
 
         Auth::login($user);
+        $request->session()->regenerate();
+
         return redirect()->route('my.applications')->with('success', 'Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi!');
     }
 } 

@@ -9,16 +9,6 @@ use App\Http\Requests\UserUpdateRequest;
 
 class UsersController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'superadmin'])) {
-                abort(403, 'Sizda admin panelga kirish huquqi yo‘q.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $user = Auth::user();
@@ -48,6 +38,6 @@ class UsersController extends Controller
         $user = User::findOrFail($id);
         $this->authorize('delete', $user);
         $user->delete();
-        return redirect()->route('admin.users')->with('success', 'Foydalanuvchi o‘chirildi!');
+        return redirect()->route('admin.users')->with('success', 'Foydalanuvchi o\'chirildi!');
     }
 }

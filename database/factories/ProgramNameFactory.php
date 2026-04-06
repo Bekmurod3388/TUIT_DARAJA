@@ -13,6 +13,7 @@ class ProgramNameFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->word(),
+            'code' => $this->faker->unique()->bothify('PN-###'),
         ];
     }
 } 

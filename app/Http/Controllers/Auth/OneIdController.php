@@ -4,73 +4,103 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Arr;
+use Laravel\Socialite\Facades\Socialite;
+use Throwable;
 
 class OneIdController extends Controller
 {
-    public function redirectToOneId(Request $request)
+    public function redirectToOneId()
     {
-        $query = http_build_query([
-            'response_type' => 'one_code',
-            'client_id' => config('services.oneid.client_id'),
-            'redirect_uri' => config('services.oneid.redirect'),
-            'scope' => config('services.oneid.scope'),
-            'state' => csrf_token(),
-        ]);
-        return redirect(config('services.oneid.auth_url') . '?' . $query);
+        $driver = Socialite::driver('oneid');
+        $scopes = collect(explode(' ', (string) config('services.oneid.scope')))
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($scopes !== []) {
+            $driver->scopes($scopes);
+        }
+
+        return $driver->redirect();
     }
 
     public function handleOneIdCallback(Request $request)
     {
-        $code = $request->input('code');
-        $state = $request->input('state');
+        try {
+            $driver = Socialite::driver('oneid');
+            $scopes = collect(explode(' ', (string) config('services.oneid.scope')))
+                ->filter()
+                ->values()
+                ->all();
 
-        // 1. Access token olish
-        $tokenResponse = Http::asForm()->post(config('services.oneid.auth_url'), [
-            'grant_type' => 'one_authorization_code',
-            'client_id' => config('services.oneid.client_id'),
-            'client_secret' => config('services.oneid.client_secret'),
-            'code' => $code,
-            'redirect_uri' => config('services.oneid.redirect'),
-        ]);
-
-        if (!$tokenResponse->ok() || !isset($tokenResponse['access_token'])) {
-            return redirect()->route('login')->withErrors(['oneid' => 'OneID orqali avtorizatsiya muvaffaqiyatsiz tugadi.']);
+            if ($scopes !== []) {
+                $driver->scopes($scopes);
             }
 
-        $accessToken = $tokenResponse['access_token'];
+            $oauthUser = $driver->user();
+            $rawUser = is_array($oauthUser->user ?? null) ? $oauthUser->user : [];
+            $oneId = (string) ($oauthUser->getId() ?? Arr::get($rawUser, 'user_id'));
 
-        // 2. Foydalanuvchi ma’lumotlarini olish
-        $userResponse = Http::asForm()->post(config('services.oneid.auth_url'), [
-            'grant_type' => 'one_access_token_identify',
-            'client_id' => config('services.oneid.client_id'),
-            'client_secret' => config('services.oneid.client_secret'),
-            'access_token' => $accessToken,
-            'scope' => config('services.oneid.scope'),
+            if ($oneId === '') {
+                throw new \RuntimeException(__('messages.oneid_no_id'));
+            }
+
+            $phone = $this->resolvePhone($rawUser, $oneId);
+
+            $user = User::query()
+                ->where('oneid_id', $oneId)
+                ->orWhere('phone', $phone)
+                ->first();
+
+            if ($user) {
+                $user->forceFill(array_filter([
+                    'oneid_id' => $oneId,
+                    'oneid_token' => $oauthUser->token,
+                    'phone' => $user->phone ?: $phone,
+                    'first_name' => $user->first_name ?: Arr::get($rawUser, 'first_name', ''),
+                    'last_name' => $user->last_name ?: Arr::get($rawUser, 'last_name', Arr::get($rawUser, 'sur_name', '')),
+                    'middle_name' => $user->middle_name ?: Arr::get($rawUser, 'middle_name', Arr::get($rawUser, 'mid_name', '')),
+                ], fn ($v) => $v !== ''))->save();
+            } else {
+                $user = User::create([
+                    'oneid_id' => $oneId,
+                    'oneid_token' => $oauthUser->token,
+                    'phone' => $phone,
+                    'first_name' => Arr::get($rawUser, 'first_name', ''),
+                    'last_name' => Arr::get($rawUser, 'last_name', Arr::get($rawUser, 'sur_name', '')),
+                    'middle_name' => Arr::get($rawUser, 'middle_name', Arr::get($rawUser, 'mid_name', '')),
+                    'role' => 'user',
+                    'password' => bcrypt(str()->random(32)),
+                ]);
+            }
+
+            Auth::login($user, true);
+            $request->session()->regenerate();
+
+            return redirect()->route('my.applications');
+        } catch (Throwable $e) {
+            report($e);
+
+            return redirect()->route('login')->withErrors([
+                'oneid' => __('messages.oneid_error'),
             ]);
-
-        if (!$userResponse->ok() || !isset($userResponse['pin'])) {
-            return redirect()->route('login')->withErrors(['oneid' => 'OneID foydalanuvchi ma’lumotlarini olishda xatolik.']);
         }
+    }
 
-        // 3. Foydalanuvchini topish yoki yaratish
-        $user = User::where('oneid_id', $userResponse['user_id'])->orWhere('phone', $userResponse['pin'])->first();
-        if (!$user) {
-            $user = User::create([
-                'oneid_id' => $userResponse['user_id'],
-                'phone' => $userResponse['pin'],
-                'first_name' => $userResponse['first_name'] ?? '',
-                'last_name' => $userResponse['sur_name'] ?? '',
-                'middle_name' => $userResponse['mid_name'] ?? '',
-                'password' => bcrypt(str()->random(16)),
-                'role' => 'user',
-            ]);
-        }
+    private function resolvePhone(array $rawUser, string $oneId): string
+    {
+        $candidate = Arr::first([
+            Arr::get($rawUser, 'phone'),
+            Arr::get($rawUser, 'phone_number'),
+            Arr::get($rawUser, 'mob_phone_no'),
+            Arr::get($rawUser, 'mobile'),
+        ], fn (?string $value) => filled($value));
 
-            Auth::login($user);
+        $normalized = User::normalizePhone(is_string($candidate) ? $candidate : null);
 
-        return redirect()->route('my.applications');
+        return $normalized ?? 'oneid-'.$oneId;
     }
 }

@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            //
-        });
+        if (!Schema::hasColumn('applications', 'payment_status')) {
+            Schema::table('applications', function (Blueprint $table) {
+                $table->string('payment_status')->default('pending')->after('status');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            //
-        });
+        // Intentionally left empty because the base applications migration now
+        // owns the payment_status column on fresh installs.
     }
 };

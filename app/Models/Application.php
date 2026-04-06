@@ -27,6 +27,13 @@ class Application extends Model
         'payment_status',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_scored' => 'boolean',
+        ];
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -35,5 +42,10 @@ class Application extends Model
     public function specalization()
     {
         return $this->belongsTo(Specalization::class);
+    }
+
+    public function paymeTransactions()
+    {
+        return $this->hasMany(PaymeTransaction::class);
     }
 }

@@ -1,51 +1,57 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ariza batafsil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
-<div class="flex min-h-screen">
-    @include('admin.sidebar')
-    <main class="flex-1 p-10">
-        <div class="bg-white rounded-xl shadow p-8 max-w-2xl mx-auto">
-            <h1 class="text-2xl font-bold mb-6">Ariza batafsil</h1>
-            <div class="space-y-4 text-lg">
-                <div><span class="font-semibold">F.I.O.:</span> {{ $application->last_name }} {{ $application->first_name }} {{ $application->middle_name }}</div>
-                <div><span class="font-semibold">Telefon raqami:</span> {{ $application->phone }}</div>
-                <div><span class="font-semibold">Ixtisoslik:</span> {{ $application->specalization->name ?? '-' }}</div>
-                <div><span class="font-semibold">Tashkilot:</span> {{ $application->organization }}</div>
-                <div><span class="font-semibold">Fan nomi:</span> {{ $application->subject }}</div>
-                <div><span class="font-semibold">Ta'lim turi:</span> {{ $application->education_type }}</div>
-                <div><span class="font-semibold">Status:</span> @php
-                    $statusUz = [
-                        'pending' => 'Jarayonda',
-                        'accepted' => 'Qabul qilindi',
-                        'cancelled' => 'Bekor qilindi',
-                    ];
-                    $statusColors = [
-                        'pending' => 'bg-yellow-100 text-yellow-800',
-                        'accepted' => 'bg-green-100 text-green-800',
-                        'cancelled' => 'bg-red-100 text-red-800',
-                    ];
-                    $status = $application->status;
-                @endphp
-                <span class="font-semibold px-3 py-2 rounded text-base {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
-                    {{ $statusUz[$status] ?? 'Jarayonda' }}
-                </span>
-                </div>
-                <div><span class="font-semibold">OAC fayli:</span> @if($application->oac_file)<a href="/{{ $application->oac_file }}" target="_blank" class="text-blue-600 underline">Yuklab olish</a>@else-@endif</div>
-                <div><span class="font-semibold">Yo'llanma fayli:</span> @if($application->direction_file)<a href="/{{ $application->direction_file }}" target="_blank" class="text-blue-600 underline">Yuklab olish</a>@else-@endif</div>
-                <div><span class="font-semibold">To'lov cheki:</span> @if($application->receipt_file)<a href="/{{ $application->receipt_file }}" target="_blank" class="text-blue-600 underline">Yuklab olish</a>@else-@endif</div>
-                <div><span class="font-semibold">Ish buyrug'i:</span> @if($application->work_order_file)<a href="/{{ $application->work_order_file }}" target="_blank" class="text-blue-600 underline">Yuklab olish</a>@else-@endif</div>
-            </div>
-            <div class="mt-8">
-                <a href="{{ route('admin.applications') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded font-semibold">Ortga</a>
-            </div>
+@extends('admin.layout')
+@section('title', __('messages.application_details'))
+
+@section('content')
+@php
+    $statusLabels = [
+        'pending' => __('messages.status_pending'),
+        'accepted' => __('messages.status_accepted'),
+        'cancelled' => __('messages.status_cancelled'),
+        'in_process' => __('messages.status_in_process'),
+    ];
+    $statusColors = [
+        'pending' => 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300',
+        'accepted' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300',
+        'cancelled' => 'bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300',
+        'in_process' => 'bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300',
+    ];
+    $files = [
+        'oac_file' => __('messages.oac_file'),
+        'direction_file' => __('messages.direction_file'),
+        'receipt_file' => __('messages.receipt_file'),
+        'work_order_file' => __('messages.work_order_file'),
+    ];
+@endphp
+<div class="mx-auto max-w-2xl rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
+    <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">{{ __('messages.application_details') }}</h1>
+    <div class="space-y-4 text-lg text-slate-700 dark:text-slate-200">
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.full_name') }}:</span> {{ $application->last_name }} {{ $application->first_name }} {{ $application->middle_name }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.phone_number') }}:</span> {{ $application->phone }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.specialization') }}:</span> {{ $application->specalization->name ?? '-' }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.organization') }}:</span> {{ $application->organization }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.subject_name') }}:</span> {{ $application->subject }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.education_type') }}:</span> {{ $application->education_type }}</div>
+        <div>
+            <span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.status') }}:</span>
+            <span class="rounded px-3 py-2 text-base font-semibold {{ $statusColors[$application->status] ?? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200' }}">
+                {{ $statusLabels[$application->status] ?? __('messages.status_pending') }}
+            </span>
         </div>
-    </main>
+        @foreach ($files as $field => $label)
+            <div>
+                <span class="font-semibold text-slate-900 dark:text-white">{{ $label }}:</span>
+                @if($application->{$field})
+                    <a href="{{ route('applications.file', ['id' => $application->id, 'field' => $field]) }}" class="text-blue-600 underline dark:text-blue-400">
+                        {{ __('messages.download') }}
+                    </a>
+                @else
+                    -
+                @endif
+            </div>
+        @endforeach
+    </div>
+    <div class="mt-8">
+        <a href="{{ route('admin.applications') }}" class="inline-flex rounded-lg bg-slate-200 px-6 py-2 font-semibold text-slate-800 transition-colors hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">{{ __('messages.back') }}</a>
+    </div>
 </div>
-</body>
-</html> 
+@endsection

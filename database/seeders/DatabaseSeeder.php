@@ -19,22 +19,27 @@ class DatabaseSeeder extends Seeder
     {
         // Userlar
         $usedPhones = ['998901234567', '998999999999'];
-        User::factory()->create([
-            'phone' => '998901234567',
-            'last_name' => 'test',
-            'first_name' => 'testov',
-            'middle_name' => 'testovich',
-            'password' => bcrypt('password'),
-            'role' => 'user',
-        ]);
-        User::factory()->create([
-            'phone' => '998999999999',
-            'last_name' => 'Admin',
-            'first_name' => 'Test',
-            'middle_name' => 'User',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['phone' => '998901234567'],
+            [
+                'last_name' => 'test',
+                'first_name' => 'testov',
+                'middle_name' => 'testovich',
+                'password' => bcrypt('password'),
+                'role' => 'user',
+            ]
+        );
+
+        User::updateOrCreate(
+            ['phone' => '998999999999'],
+            [
+                'last_name' => 'Admin',
+                'first_name' => 'Test',
+                'middle_name' => 'User',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
         
         // Program names
         $programNames = [

@@ -16,7 +16,7 @@ services:
         #   - "33060:3306"
         healthcheck:
             # MySQL tayyormi? (root parol bilan ping)
-            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD --silent"]
+            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
             interval: 5s
             timeout: 3s
             retries: 20

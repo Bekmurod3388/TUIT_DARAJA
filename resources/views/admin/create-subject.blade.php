@@ -1,28 +1,17 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Yangi fan qo‘shish</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
-<div class="flex min-h-screen">
-    @include('admin.sidebar')
-    <main class="flex-1 p-10">
-        <div class="bg-white rounded-xl shadow p-8 max-w-lg mx-auto">
-            <h1 class="text-2xl font-bold mb-6">Yangi fan qo‘shish</h1>
-            <form method="POST" action="{{ route('admin.subjects.store') }}">
-                @csrf
-                <div class="mb-4">
-                    <label class="block mb-1 font-semibold">Fan nomi</label>
-                    <input type="text" name="fan" class="w-full border rounded px-3 py-2" required>
-                </div>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Saqlash</button>
-                <a href="{{ route('admin.subjects') }}" class="ml-4 text-gray-600 hover:underline">Bekor qilish</a>
-            </form>
+@extends('admin.layout')
+@section('title', __('messages.new_subject'))
+
+@section('content')
+<div class="mx-auto max-w-lg rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
+    <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">{{ __('messages.new_subject') }}</h1>
+    <form method="POST" action="{{ route('admin.subjects.store') }}">
+        @csrf
+        <div class="mb-4">
+            <label class="mb-1 block font-semibold text-slate-900 dark:text-white">{{ __('messages.subject_name') }}</label>
+            <input type="text" name="fan" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100" required value="{{ old('fan') }}">
         </div>
-    </main>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">{{ __('messages.save_changes') }}</button>
+        <a href="{{ route('admin.subjects') }}" class="ml-4 text-slate-600 hover:underline dark:text-slate-400">{{ __('messages.cancel') }}</a>
+    </form>
 </div>
-</body>
-</html> 
+@endsection

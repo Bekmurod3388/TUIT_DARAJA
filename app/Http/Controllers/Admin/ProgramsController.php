@@ -11,16 +11,6 @@ use App\Models\ProgramName;
 
 class ProgramsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'superadmin'])) {
-                abort(403, 'Sizda admin panelga kirish huquqi yo‘q.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $programs = Specalization::all();
@@ -29,8 +19,8 @@ class ProgramsController extends Controller
 
     public function create()
     {
-        $subjects = \App\Models\Subject::all();
-        $programNames = \App\Models\ProgramName::all();
+        $subjects = Subject::all();
+        $programNames = ProgramName::all();
         return view('admin.create-program', compact('subjects', 'programNames'));
     }
 
@@ -53,8 +43,8 @@ class ProgramsController extends Controller
     public function edit($id)
     {
         $program = Specalization::findOrFail($id);
-        $subjects = \App\Models\Subject::all();
-        $programNames = \App\Models\ProgramName::all();
+        $subjects = Subject::all();
+        $programNames = ProgramName::all();
         $selectedSubjects = $program->subjects->pluck('fan_id')->toArray();
         return view('admin.edit-program', compact('program', 'subjects', 'selectedSubjects', 'programNames'));
     }
@@ -67,7 +57,7 @@ class ProgramsController extends Controller
         if ($request->has('is_visible') && count($request->all()) <= 3) { // _token, is_visible, _method
             $program->is_visible = $request->boolean('is_visible');
             $program->save();
-            return redirect()->route('admin.programs')->with('success', 'Ko‘rsatish holati yangilandi!');
+            return redirect()->route('admin.programs')->with('success', 'Ko\'rsatish holati yangilandi!');
         }
 
         // To'liq update uchun
@@ -96,6 +86,6 @@ class ProgramsController extends Controller
     {
         $program = Specalization::findOrFail($id);
         $program->delete();
-        return redirect()->route('admin.programs')->with('success', 'Dastur o‘chirildi!');
+        return redirect()->route('admin.programs')->with('success', 'Dastur o\'chirildi!');
     }
 }

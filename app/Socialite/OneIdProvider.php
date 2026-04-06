@@ -4,7 +4,6 @@ namespace App\Socialite;
 
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\User;
-use Illuminate\Http\Request;
 
 class OneIdProvider extends AbstractProvider
 {
@@ -36,7 +35,7 @@ class OneIdProvider extends AbstractProvider
         return (new User)->setRaw($user)->map([
             'id' => $user['user_id'] ?? $user['id'] ?? $user['token_id'],
             'name' => $user['full_name'] ?? $user['name'] ?? ($user['first_name'] . ' ' . ($user['last_name'] ?? '')),
-            'email' => $user['email'],
+            'email' => $user['email'] ?? null,
             'avatar' => null,
         ]);
     }

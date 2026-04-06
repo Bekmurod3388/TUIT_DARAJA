@@ -7,8 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Application;
 use App\Models\Specalization;
 use App\Http\Requests\ApplicationRequest;
+use App\Http\Requests\UpdateApplicationRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MyApplicationsController extends Controller
 {
@@ -32,18 +36,37 @@ class MyApplicationsController extends Controller
         $user = Auth::user();
         $data = $request->validated();
         $userId = $user->id;
-        $timestamp = now()->timestamp;
-        $oacPath = $request->file('oac_file') ? $request->file('oac_file')->storeAs('applications/oac', $userId.'_'.$timestamp.'_oac.'.$request->file('oac_file')->getClientOriginalExtension(), 'public') : null;
-        $directionPath = $request->file('direction_file') ? $request->file('direction_file')->storeAs('applications/direction', $userId.'_'.$timestamp.'_direction.'.$request->file('direction_file')->getClientOriginalExtension(), 'public') : null;
-        $receiptPath = $request->file('receipt_file') ? $request->file('receipt_file')->storeAs('applications/receipt', $userId.'_'.$timestamp.'_receipt.'.$request->file('receipt_file')->getClientOriginalExtension(), 'public') : null;
-        $workOrderPath = $request->file('work_order_file') ? $request->file('work_order_file')->storeAs('applications/work_order', $userId.'_'.$timestamp.'_workorder.'.$request->file('work_order_file')->getClientOriginalExtension(), 'public') : null;
+
+        $files = ['oac_file', 'direction_file', 'receipt_file', 'work_order_file'];
+        $paths = [];
+
+        foreach ($files as $fileKey) {
+            if ($request->hasFile($fileKey)) {
+                $file = $request->file($fileKey);
+                $folder = str_replace('_file', '', $fileKey);
+                $filename = implode('_', [
+                    $userId,
+                    now()->format('YmdHisv'),
+                    Str::uuid()->toString(),
+                    $folder,
+                ]).'.'.$file->getClientOriginalExtension();
+
+                $paths[$fileKey] = $file->storeAs(
+                    "applications/$folder",
+                    $filename,
+                    'local'
+                );
+            } else {
+                $paths[$fileKey] = null;
+            }
+        }
 
         if (($data['organization_type'] ?? null) === 'uzmu') {
             $data['organization'] = 'TATU';
         }
 
         $application = new \App\Models\Application();
-        $application->user_id = $user->id;
+        $application->user_id = $userId;
         $application->specalization_id = $data['specalization_id'];
         $application->organization = $data['organization'] ?? '';
         $application->subject = $data['subject'] ?? '';
@@ -53,10 +76,11 @@ class MyApplicationsController extends Controller
         $application->middle_name = $data['middle_name'];
         $application->phone = $data['phone'] ?? '';
         $application->education_type = $data['education_type'] ?? '';
-        $application->oac_file = $oacPath;
-        $application->direction_file = $directionPath;
-        $application->receipt_file = $receiptPath;
-        $application->work_order_file = $workOrderPath;
+
+        foreach ($paths as $key => $path) {
+            $application->$key = $path;
+        }
+
         $application->save();
 
         return redirect()->route('my.applications')->with('success', 'Ariza muvaffaqiyatli yuborildi!');
@@ -64,55 +88,42 @@ class MyApplicationsController extends Controller
 
     public function edit($id)
     {
-        $application = \App\Models\Application::findOrFail($id);
+        $application = $this->ownerApplicationQuery()->findOrFail($id);
         $specalizations = \App\Models\Specalization::all();
         return view('edit-application', compact('application', 'specalizations'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateApplicationRequest $request, $id)
     {
-        $application = \App\Models\Application::findOrFail($id);
-        $validated = $request->validate([
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'specalization_id' => 'required|exists:specalizations,id',
-            'subject' => 'required|string|max:255',
-            'organization' => 'required|string|max:255',
-        ]);
-        $application->update($validated);
+        $application = $this->ownerApplicationQuery()->findOrFail($id);
+        $application->update($request->validated());
         return redirect()->route('my.applications')->with('success', 'Ariza muvaffaqiyatli yangilandi!');
     }
 
     // Payme to'lovini boshlash
     public function pay($id)
     {
-        $application = \App\Models\Application::findOrFail($id);
+        $application = $this->ownerApplicationQuery()->with('specalization')->findOrFail($id);
         if ($application->payment_status === 'paid') {
             return redirect()->route('my.applications')->with('success', 'To‘lov allaqachon amalga oshirilgan!');
         }
-        $amount = $application->specalization->price * 100; // so'm -> tiyin
-        $merchant_id = config('services.payme.merchant_id');
-        $callback_url = config('services.payme.callback_url');
-        // Payme payment linkini generatsiya qilish (soddalashtirilgan)
-        $payme_url = "https://checkout.paycom.uz/" .
-            "?merchant=$merchant_id" .
-            "&amount=$amount" .
-            "&account[order_id]={$application->id}" .
-            "&callback=$callback_url";
-        return redirect($payme_url);
-    }
 
-    // Payme callback (notification)
-    public function paymeCallback(Request $request)
-    {
-        $orderId = $request->input('account.order_id');
-        $application = \App\Models\Application::find($orderId);
-        if ($application) {
-            $application->payment_status = 'paid';
-            $application->save();
+        if (!$application->specalization || $application->specalization->price <= 0) {
+            throw new HttpException(422, 'To‘lov summasi aniqlanmadi.');
         }
-        return response()->json(['result' => 'ok']);
+
+        $amount = $application->specalization->price * 100; // so'm -> tiyin
+
+        $paymeUrl = 'https://checkout.paycom.uz/'.http_build_query([
+            'merchant' => config('services.payme.merchant_id'),
+            'amount' => $amount,
+            'account' => [
+                'order_id' => $application->id,
+            ],
+            'callback' => config('services.payme.callback_url') ?: route('payme.return'),
+        ]);
+
+        return redirect()->away($paymeUrl);
     }
 
     public function certificate($id)
@@ -123,7 +134,11 @@ class MyApplicationsController extends Controller
         if (!($user->id === $application->user_id || in_array($user->role, ['admin', 'superadmin']))) {
             abort(403, 'Sizda bu sertifikatni yuklab olish huquqi yo‘q!');
         }
-        if (!$application->is_scored) {
+        if (
+            !$application->is_scored
+            || $application->payment_status !== 'paid'
+            || $application->status !== 'accepted'
+        ) {
             abort(403, 'Sertifikat faqat baholangan arizalar uchun!');
         }
         $qrData = [
@@ -139,5 +154,34 @@ class MyApplicationsController extends Controller
             'qrSvg' => $qrSvg,
         ]);
         return $pdf->download('sertifikat_'.$application->id.'.pdf');
+    }
+
+    public function downloadFile($id, $field)
+    {
+        $allowedFields = ['oac_file', 'direction_file', 'receipt_file', 'work_order_file'];
+
+        if (!in_array($field, $allowedFields, true)) {
+            abort(404);
+        }
+
+        $application = Application::findOrFail($id);
+        $user = Auth::user();
+
+        if (!($user->id === $application->user_id || in_array($user->role, ['admin', 'superadmin'], true))) {
+            abort(403);
+        }
+
+        $path = $application->{$field};
+
+        if (!$path || !Storage::disk('local')->exists($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('local')->download($path);
+    }
+
+    private function ownerApplicationQuery()
+    {
+        return Application::query()->where('user_id', Auth::id());
     }
 }

@@ -1,46 +1,49 @@
 @extends('admin.layout')
-@section('title', 'Dastur nomlari')
+@section('title', __('messages.program_names'))
+
 @section('content')
-<div class="bg-white rounded-xl shadow p-8">
+<div class="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Dastur nomlari</h1>
-        <a href="{{ route('admin.program-names.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">Yangi nom qo‘shish</a>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ __('messages.program_names') }}</h1>
+        <a href="{{ route('admin.program-names.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">{{ __('messages.add_new_name') }}</a>
     </div>
-    <table class="min-w-full border rounded">
-        <thead>
-            <tr class="bg-gray-100">
-                <th class="px-4 py-2 text-center">#</th>
-                <th class="px-4 py-2 text-center">Nom</th>
-                <th class="px-4 py-2 text-center">Dastur kodi</th>
-                <th class="px-4 py-2 text-center">Yaratilgan vaqt</th>
-                <th class="px-4 py-2 text-center">Tahrirlash</th>
-                <th class="px-4 py-2 text-center">O‘chirish</th>
+    <div class="overflow-x-auto rounded-xl border border-slate-200/70 dark:border-slate-700">
+    <table class="min-w-full text-sm text-slate-700 dark:text-slate-200">
+        <thead class="bg-slate-50/90 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900/70 dark:text-slate-400">
+            <tr>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">#</th>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.name') }}</th>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.program_code') }}</th>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.created_at_label') }}</th>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.edit') }}</th>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.delete') }}</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-slate-200/80 bg-white/70 dark:divide-slate-700/80 dark:bg-slate-800/70">
         @forelse($programNames as $programName)
-            <tr>
+            <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30">
                 <td class="px-4 py-2 text-center">{{ $programName->id }}</td>
-                <td class="px-4 py-2 text-center">{{ $programName->name }}</td>
-                <td class="px-4 py-2 text-center">{{ $programName->code }}</td>
+                <td class="px-4 py-2 text-center text-slate-900 dark:text-white">{{ $programName->name }}</td>
+                <td class="px-4 py-2 text-center"><span class="rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">{{ $programName->code }}</span></td>
                 <td class="px-4 py-2 text-center">{{ $programName->created_at ? $programName->created_at->format('Y-m-d H:i') : '-' }}</td>
                 <td class="px-4 py-2 text-center">
-                    <a href="{{ route('admin.program-names.edit', $programName->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-semibold">Tahrirlash</a>
+                    <a href="{{ route('admin.program-names.edit', $programName->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-semibold">{{ __('messages.edit') }}</a>
                 </td>
                 <td class="px-4 py-2 text-center">
-                    <form method="POST" action="{{ route('admin.program-names.destroy', $programName->id) }}" style="display:inline-block" onsubmit="return confirm('Nom o‘chirilsinmi?')">
+                    <form method="POST" action="{{ route('admin.program-names.destroy', $programName->id) }}" style="display:inline-block" onsubmit="return confirm(@js(__('messages.delete_name_confirm')))">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded font-semibold">O‘chirish</button>
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded font-semibold">{{ __('messages.delete') }}</button>
                     </form>
                 </td>
             </tr>
         @empty
             <tr>
-                <td colspan="5" class="text-center text-gray-500 py-4">Nomlar yo‘q</td>
+                <td colspan="6" class="py-6 text-center text-slate-500 dark:text-slate-400">{{ __('messages.no_program_names') }}</td>
             </tr>
         @endforelse
         </tbody>
     </table>
+    </div>
 </div>
-@endsection 
+@endsection

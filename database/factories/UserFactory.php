@@ -27,8 +27,9 @@ class UserFactory extends Factory
             'last_name' => fake()->lastName(),
             'first_name' => fake()->firstName(),
             'middle_name' => fake()->firstName(),
-            'phone' => fake()->unique()->phoneNumber(),
+            'phone' => fake()->unique()->numerify('9989########'),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => 'user',
         ];
     }
 

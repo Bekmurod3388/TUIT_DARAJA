@@ -3,24 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use App\Models\Application;
 
 class ApplicationsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'superadmin'])) {
-                abort(403, 'Sizda admin panelga kirish huquqi yo‘q.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
-        $applications = Application::with(['user', 'specalization'])->get();
+        $applications = Application::with(['user', 'specalization'])->latest()->get();
         return view('admin.applications', compact('applications'));
     }
 
@@ -29,27 +20,37 @@ class ApplicationsController extends Controller
         $request->validate([
             'status' => 'required|in:pending,accepted,in_process,cancelled',
         ]);
+
         $application = Application::findOrFail($id);
+        $oldStatus = $application->status;
         $application->status = $request->status;
         $application->save();
+
+        AuditLog::record('status_changed', $application, ['status' => $oldStatus], ['status' => $request->status]);
+
         return redirect()->back()->with('success', 'Ariza statusi yangilandi!');
     }
 
     public function setScore(Request $request, $id)
     {
-        $application = \App\Models\Application::findOrFail($id);
+        $application = Application::findOrFail($id);
         $data = $request->validate([
             'score' => 'required|integer|min:0|max:100',
         ]);
+
+        $oldScore = $application->score;
         $application->score = $data['score'];
         $application->is_scored = true;
         $application->save();
-        return redirect()->back()->with('success', 'Ball qo‘yildi!');
+
+        AuditLog::record('score_set', $application, ['score' => $oldScore], ['score' => $data['score']]);
+
+        return redirect()->back()->with('success', 'Ball qo\'yildi!');
     }
 
     public function show($id)
     {
-        $application = \App\Models\Application::with(['user', 'specalization'])->findOrFail($id);
+        $application = Application::with(['user', 'specalization'])->findOrFail($id);
         return view('admin.applications-show', compact('application'));
     }
 }

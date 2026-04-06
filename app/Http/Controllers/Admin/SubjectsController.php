@@ -9,16 +9,6 @@ use App\Http\Requests\SubjectRequest;
 
 class SubjectsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'superadmin'])) {
-                abort(403, 'Sizda fanlar bo‘limiga kirish huquqi yo‘q.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $subjects = Subject::all();
@@ -33,7 +23,7 @@ class SubjectsController extends Controller
     public function store(SubjectRequest $request)
     {
         $validated = $request->validated();
-        \App\Models\Subject::create($validated);
+        Subject::create($validated);
         return redirect()->route('admin.subjects')->with('success', 'Fan yaratildi!');
     }
 
@@ -46,7 +36,7 @@ class SubjectsController extends Controller
     public function update(SubjectRequest $request, $id)
     {
         $validated = $request->validated();
-        $subject = \App\Models\Subject::findOrFail($id);
+        $subject = Subject::findOrFail($id);
         $subject->update($validated);
         return redirect()->route('admin.subjects')->with('success', 'Fan yangilandi!');
     }
@@ -55,6 +45,6 @@ class SubjectsController extends Controller
     {
         $subject = Subject::findOrFail($id);
         $subject->delete();
-        return redirect()->route('admin.subjects')->with('success', 'Fan o‘chirildi!');
+        return redirect()->route('admin.subjects')->with('success', 'Fan o\'chirildi!');
     }
 }

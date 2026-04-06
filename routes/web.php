@@ -2,7 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\OneIdController;
-use App\Http\Middleware\AdminMiddleware;
+
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['uz', 'ru', 'en'])) {
+        session()->put('locale', $locale);
+    }
+    return redirect()->back();
+})->name('language.switch');
 
 // --- Public routes ---
 Route::get('/', fn() => redirect()->route('login'));
@@ -13,7 +19,9 @@ Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login
     ->middleware('throttle:5,1')
     ->name('login.post');
 Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register'])->name('register.post');
+Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register'])
+    ->middleware('throttle:5,1')
+    ->name('register.post');
 Route::post('/logout', function (\Illuminate\Http\Request $request) {
     \Illuminate\Support\Facades\Auth::logout();
     $request->session()->invalidate();
@@ -30,17 +38,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-applications', [\App\Http\Controllers\MyApplicationsController::class, 'index'])->name('my.applications');
     Route::post('/applications', [\App\Http\Controllers\MyApplicationsController::class, 'store'])->middleware('throttle:10,1')->name('applications.store');
     Route::get('/my-applications/{id}/edit', [\App\Http\Controllers\MyApplicationsController::class, 'edit'])->name('applications.edit');
-    Route::post('/my-applications/{id}/update', [\App\Http\Controllers\MyApplicationsController::class, 'update'])->name('applications.update');
+    Route::post('/my-applications/{id}/update', [\App\Http\Controllers\MyApplicationsController::class, 'update'])
+        ->middleware('throttle:10,1')
+        ->name('applications.update');
     Route::get('/programs', [\App\Http\Controllers\ProgramsController::class, 'index'])->name('programs');
     Route::get('/applications/{id}/pay', [\App\Http\Controllers\MyApplicationsController::class, 'pay'])->name('applications.pay');
     Route::get('/applications/{id}/certificate', [\App\Http\Controllers\MyApplicationsController::class, 'certificate'])->name('applications.certificate');
+    Route::get('/applications/{id}/file/{field}', [\App\Http\Controllers\MyApplicationsController::class, 'downloadFile'])->name('applications.file');
 });
-Route::post('/payme/callback', [\App\Http\Controllers\MyApplicationsController::class, 'paymeCallback'])->name('payme.callback');
+Route::get('/payme/callback', [\App\Http\Controllers\PaymeController::class, 'return'])->name('payme.return');
+Route::post('/payme/callback', [\App\Http\Controllers\PaymeController::class, 'merchant'])
+    ->middleware('throttle:60,1')
+    ->name('payme.merchant');
 
 // --- Admin authentication (login/logout) ---
 Route::prefix('admin')->group(function () {
     Route::get('/login', [\App\Http\Controllers\Admin\LoginController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/login', [\App\Http\Controllers\Admin\LoginController::class, 'login'])->name('admin.login.post');
+    Route::post('/login', [\App\Http\Controllers\Admin\LoginController::class, 'login'])
+        ->middleware('throttle:5,1')
+        ->name('admin.login.post');
     Route::post('/logout', function (\Illuminate\Http\Request $request) {
         \Illuminate\Support\Facades\Auth::logout();
         $request->session()->invalidate();

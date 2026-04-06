@@ -23,6 +23,8 @@ class User extends Authenticatable
         'middle_name',
         'phone',
         'password',
+        'oneid_id',
+        'oneid_token',
         'role', // qo'shildi
     ];
 
@@ -34,6 +36,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'oneid_token',
     ];
 
     /**
@@ -52,5 +55,25 @@ class User extends Authenticatable
     public function applications()
     {
         return $this->hasMany(\App\Models\Application::class);
+    }
+
+    public static function normalizePhone(?string $phone): ?string
+    {
+        if ($phone === null) {
+            return null;
+        }
+
+        if (str_starts_with($phone, 'oneid-')) {
+            return $phone;
+        }
+
+        $normalized = preg_replace('/\D+/', '', $phone);
+
+        return $normalized !== '' ? $normalized : null;
+    }
+
+    public function setPhoneAttribute(?string $value): void
+    {
+        $this->attributes['phone'] = static::normalizePhone($value) ?? $value;
     }
 }

@@ -7,10 +7,14 @@ use App\Models\Specalization;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 
 class SpecalizationResource extends Resource
 {
@@ -22,14 +26,26 @@ class SpecalizationResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('number')
-                    ->label('Raqam')
-                    ->maxLength(10)
+                Select::make('program_name_id')
+                    ->relationship('programName', 'name')
                     ->required(),
+                TextInput::make('code')
+                    ->label('Kodi')
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('name')
                     ->label('Nomi')
                     ->required()
                     ->maxLength(255),
+                Textarea::make('description')
+                    ->label('Tavsif'),
+                TextInput::make('price')
+                    ->label('Summa (so‘m)')
+                    ->numeric()
+                    ->required(),
+                Toggle::make('is_visible')
+                    ->label('Ko‘rinadigan')
+                    ->default(true),
             ]);
     }
 
@@ -37,8 +53,11 @@ class SpecalizationResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('number')->label('Raqam')->sortable()->searchable(),
+                TextColumn::make('programName.name')->label('Dastur')->sortable(),
+                TextColumn::make('code')->label('Kodi')->sortable()->searchable(),
                 TextColumn::make('name')->label('Nomi')->sortable()->searchable(),
+                TextColumn::make('price')->label('Summa')->money('UZS')->sortable(),
+                IconColumn::make('is_visible')->label('Holati')->boolean(),
             ])
             ->filters([
                 //

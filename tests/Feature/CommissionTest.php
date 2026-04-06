@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Commission;
 use App\Models\User;
 use App\Models\Specalization;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,13 +22,17 @@ class CommissionTest extends TestCase
             'chairman' => 'Chairman Name',
             'deputy' => 'Deputy Name',
             'secretary' => 'Secretary Name',
-            'members' => json_encode(['Member1', 'Member2']),
+            'members' => "Member1, Member2\nMember3",
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('commissions', [
             'specalization_id' => $spec->id,
             'chairman' => 'Chairman Name',
         ]);
+
+        $commission = Commission::query()->latest('id')->firstOrFail();
+
+        $this->assertSame(['Member1', 'Member2', 'Member3'], $commission->members);
     }
 
     public function test_admin_can_view_commissions()

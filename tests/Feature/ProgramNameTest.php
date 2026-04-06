@@ -17,9 +17,13 @@ class ProgramNameTest extends TestCase
         $this->actingAs($admin);
         $response = $this->post('/admin/program-names', [
             'name' => 'Test Program',
+            'code' => 'TP-001',
         ]);
         $response->assertRedirect();
-        $this->assertDatabaseHas('program_names', ['name' => 'Test Program']);
+        $this->assertDatabaseHas('program_names', [
+            'name' => 'Test Program',
+            'code' => 'TP-001',
+        ]);
     }
 
     public function test_admin_can_view_program_names()

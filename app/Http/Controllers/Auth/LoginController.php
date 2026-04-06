@@ -10,15 +10,16 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
+        $request->merge([
+            'phone' => \App\Models\User::normalizePhone($request->input('phone')),
+        ]);
+
         $credentials = $request->validate([
             'phone' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
-        // Telefon raqamidan faqat raqamlarni qoldiramiz
-        $cleanPhone = preg_replace('/\D/', '', $credentials['phone']);
-
-        if (Auth::attempt(['phone' => $cleanPhone, 'password' => $credentials['password']], $request->filled('remember'))) {
+        if (Auth::attempt(['phone' => $credentials['phone'], 'password' => $credentials['password']], $request->filled('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended('/my-applications');
         }

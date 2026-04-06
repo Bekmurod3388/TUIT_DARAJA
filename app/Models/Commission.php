@@ -17,6 +17,13 @@ class Commission extends Model
         'specalization_id',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'members' => 'array',
+        ];
+    }
+
     public function specalization()
     {
         return $this->belongsTo(\App\Models\Specalization::class);

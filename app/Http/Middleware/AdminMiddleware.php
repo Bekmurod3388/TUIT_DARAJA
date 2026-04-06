@@ -33,9 +33,9 @@ class AdminMiddleware
 
         // Only allow admin or superadmin roles
         if (!in_array($user->role, ['admin', 'superadmin'], true)) {
-            abort(403, 'Sizda admin panelga kirish huquqi yo‘q.');
+            abort(403, 'Sizda admin panelga kirish huquqi yo\'q.');
         }
 
         return $next($request);
     }
-} 
+}
