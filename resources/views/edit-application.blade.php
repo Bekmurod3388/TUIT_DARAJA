@@ -59,7 +59,7 @@
 
             <!-- Main Form Card -->
             <div class="glass-panel rounded-2xl shadow-xl border border-slate-200 overflow-hidden bg-white">
-                <form method="POST" action="{{ route('applications.update', $application->id) }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ secure_url(route('applications.update', $application->id, false)) }}" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="p-6 md:p-8">

@@ -72,7 +72,7 @@
             <div class="flex justify-center border-t border-slate-200 dark:border-slate-700 pt-4">
                 @include('components.navbar-toggles')
             </div>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ secure_url(route('logout', [], false)) }}">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center px-4 py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-red-600 hover:border-red-200 rounded-xl font-medium transition-all duration-200 shadow-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-red-500/10 dark:hover:text-red-400 dark:hover:border-red-500/30">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +165,7 @@
                                         </div>
                                     @endif
 
-                                    <form method="POST" action="{{ route('applications.store') }}" enctype="multipart/form-data" class="space-y-8">
+                                    <form method="POST" action="{{ secure_url(route('applications.store', [], false)) }}" enctype="multipart/form-data" class="space-y-8">
                                         @csrf
                                         
                                         <!-- Talabgor ma'lumotlari -->

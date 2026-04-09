@@ -49,7 +49,7 @@
                     @if($app->is_scored)
                         <span class="inline-block rounded px-2 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">{{ __('messages.score_with_value', ['value' => $app->score]) }}</span>
                     @else
-                        <form method="POST" action="{{ route('admin.applications.setScore', $app->id) }}" class="flex items-center gap-2 justify-center">
+                        <form method="POST" action="{{ secure_url(route('admin.applications.setScore', $app->id, false)) }}" class="flex items-center gap-2 justify-center">
                             @csrf
                             <input type="number" name="score" min="0" max="100" class="w-20 rounded border border-slate-300 bg-white px-2 py-1 text-center text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100" placeholder="{{ __('messages.score') }}" required>
                             <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded font-semibold">{{ __('messages.set_score') }}</button>
@@ -57,12 +57,12 @@
                     @endif
                 </td>
                 <td class="px-4 py-3 text-center flex gap-2 justify-center">
-                    <form method="POST" action="{{ route('admin.applications.updateStatus', $app->id) }}">
+                    <form method="POST" action="{{ secure_url(route('admin.applications.updateStatus', $app->id, false)) }}">
                         @csrf
                         <input type="hidden" name="status" value="accepted">
                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-base font-semibold" @if($app->status === 'accepted') disabled @endif>{{ __('messages.accept') }}</button>
                     </form>
-                    <form method="POST" action="{{ route('admin.applications.updateStatus', $app->id) }}">
+                    <form method="POST" action="{{ secure_url(route('admin.applications.updateStatus', $app->id, false)) }}">
                         @csrf
                         <input type="hidden" name="status" value="cancelled">
                         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-base font-semibold" @if($app->status === 'cancelled') disabled @endif>{{ __('messages.reject') }}</button>

@@ -36,7 +36,7 @@
                 </td>
                 <td class="px-4 py-2 text-center">{{ $program->created_at ? $program->created_at->format('Y-m-d H:i') : '-' }}</td>
                 <td class="px-4 py-2 text-center">
-                    <form method="POST" action="{{ route('admin.programs.update', $program->id) }}" style="display:inline-block">
+                    <form method="POST" action="{{ secure_url(route('admin.programs.update', $program->id, false)) }}" style="display:inline-block">
                         @csrf
                         <input type="hidden" name="is_visible" value="{{ $program->is_visible ? 0 : 1 }}">
                         <button type="submit" class="px-3 py-1 rounded font-semibold {{ $program->is_visible ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200' }}">
@@ -48,7 +48,7 @@
                     <a href="{{ route('admin.programs.edit', $program->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-semibold">{{ __('messages.edit') }}</a>
                 </td>
                 <td class="px-4 py-2 text-center">
-                    <form method="POST" action="{{ route('admin.programs.destroy', $program->id) }}" style="display:inline-block" onsubmit="return confirm(@js(__('messages.delete_program_confirm')))">
+                    <form method="POST" action="{{ secure_url(route('admin.programs.destroy', $program->id, false)) }}" style="display:inline-block" onsubmit="return confirm(@js(__('messages.delete_program_confirm')))">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded font-semibold">{{ __('messages.delete') }}</button>

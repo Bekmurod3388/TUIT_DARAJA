@@ -74,7 +74,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('register.post', [], false) }}" class="space-y-5">
+            <form method="POST" action="{{ secure_url(route('register.post', [], false)) }}" class="space-y-5">
                 @csrf
                 
                 <div class="grid grid-cols-2 gap-4">

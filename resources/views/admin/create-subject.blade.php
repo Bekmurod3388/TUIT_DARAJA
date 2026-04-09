@@ -4,7 +4,7 @@
 @section('content')
 <div class="mx-auto max-w-lg rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
     <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">{{ __('messages.new_subject') }}</h1>
-    <form method="POST" action="{{ route('admin.subjects.store') }}">
+    <form method="POST" action="{{ secure_url(route('admin.subjects.store', [], false)) }}">
         @csrf
         <div class="mb-4">
             <label class="mb-1 block font-semibold text-slate-900 dark:text-white">{{ __('messages.subject_name') }}</label>

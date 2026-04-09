@@ -46,7 +46,7 @@
                         <a href="{{ route('admin.commissions.edit', $commission->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-semibold">{{ __('messages.edit') }}</a>
                     </td>
                     <td class="px-4 py-2 text-center">
-                        <form method="POST" action="{{ route('admin.commissions.destroy', $commission->id) }}" onsubmit="return confirm(@js(__('messages.delete_commission_confirm')))">
+                        <form method="POST" action="{{ secure_url(route('admin.commissions.destroy', $commission->id, false)) }}" onsubmit="return confirm(@js(__('messages.delete_commission_confirm')))">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded font-semibold">{{ __('messages.delete') }}</button>

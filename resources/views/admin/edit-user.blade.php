@@ -4,7 +4,7 @@
 @section('content')
 <div class="mx-auto max-w-xl rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
     <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">{{ __('messages.edit_user') }}</h1>
-    <form method="POST" action="{{ route('admin.users.update', $editUser->id) }}" class="space-y-6">
+    <form method="POST" action="{{ secure_url(route('admin.users.update', $editUser->id, false)) }}" class="space-y-6">
         @csrf
         @method('PUT')
         <div>
