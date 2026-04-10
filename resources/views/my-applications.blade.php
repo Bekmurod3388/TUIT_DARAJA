@@ -128,7 +128,7 @@
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
                      class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity dark:bg-slate-900/80"
-                     @click="open = false"
+                     x-on:click="open = false"
                      aria-hidden="true"></div>
 
                 <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
@@ -146,7 +146,7 @@
                             <div class="px-4 py-6 sm:px-8 flex-1">
                                 <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 dark:border-slate-700">
                                     <h3 class="text-2xl leading-6 font-bold text-slate-900 dark:text-white" id="modal-title">{{ __('messages.enter_application_data') }}</h3>
-                                    <button @click="open = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full p-2 transition-colors dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white dark:bg-slate-700/50">
+                                    <button type="button" x-on:click="open = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full p-2 transition-colors dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white dark:bg-slate-700/50">
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -297,7 +297,7 @@
                                         </div>
 
                                         <div class="bg-slate-50 px-4 py-6 sm:px-8 flex flex-col sm:flex-row border-t border-slate-200 dark:bg-slate-900/50 dark:border-slate-700 justify-end gap-3 mt-8 -mx-4 sm:-mx-8 -mb-6 sm:-mb-8">
-                                            <button type="button" @click="open = false" class="inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-2.5 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors w-full sm:w-auto dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+                                            <button type="button" x-on:click="open = false" class="inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-2.5 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors w-full sm:w-auto dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
                                                 {{ __('messages.cancel') }}
 
                                             </button>
@@ -323,7 +323,7 @@
                         </svg>
                         <span class="font-medium">{{ session('success') }}</span>
                     </div>
-                    <button @click="show = false" class="text-emerald-600 hover:text-emerald-800 focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300">
+                    <button type="button" x-on:click="show = false" class="text-emerald-600 hover:text-emerald-800 focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -339,7 +339,7 @@
                     </div>
 
                     @if(!$specalizations->isEmpty())
-                        <button type="button" @click="open = true" class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
+                        <button type="button" x-on:click="open = true" class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
                             <svg class="h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -434,7 +434,7 @@
                                         </div>
                                         <p class="text-slate-500 font-medium dark:text-slate-400">{{ __('messages.no_applications') }}</p>
                                         @if(!$specalizations->isEmpty())
-                                            <button type="button" @click="open = true" class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
+                                            <button type="button" x-on:click="open = true" class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
@@ -507,7 +507,7 @@
                         </div>
                         <p class="text-slate-500 font-medium text-sm dark:text-slate-400">{{ __('messages.no_applications') }}</p>
                         @if(!$specalizations->isEmpty())
-                            <button type="button" @click="open = true" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
+                            <button type="button" x-on:click="open = true" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
