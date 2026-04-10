@@ -245,7 +245,7 @@
                                                 </div>
 
                                                 <!-- TATU uchun -->
-                                                <div x-show="org === 'uzmu'" x-collapse>
+                                                <div x-show="org === 'uzmu'" x-transition>
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.phone_number') }}</label>
@@ -266,7 +266,7 @@
                                                 </div>
 
                                                 <!-- Boshqa tashkilot uchun -->
-                                                <div x-show="org === 'other'" x-collapse>
+                                                <div x-show="org === 'other'" x-transition>
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">Tashkilot nomi <span class="text-red-500">*</span></label>
@@ -339,7 +339,7 @@
                     </div>
 
                     @if(!$specalizations->isEmpty())
-                        <button @click="open = true" class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
+                        <button type="button" @click="open = true" class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
                             <svg class="h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -434,7 +434,7 @@
                                         </div>
                                         <p class="text-slate-500 font-medium dark:text-slate-400">{{ __('messages.no_applications') }}</p>
                                         @if(!$specalizations->isEmpty())
-                                            <button @click="open = true" class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
+                                            <button type="button" @click="open = true" class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
@@ -507,7 +507,7 @@
                         </div>
                         <p class="text-slate-500 font-medium text-sm dark:text-slate-400">{{ __('messages.no_applications') }}</p>
                         @if(!$specalizations->isEmpty())
-                            <button @click="open = true" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
+                            <button type="button" @click="open = true" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
