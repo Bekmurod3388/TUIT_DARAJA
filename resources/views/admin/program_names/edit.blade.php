@@ -4,7 +4,7 @@
 @section('content')
 <div class="container mx-auto py-6 max-w-lg">
     <h1 class="text-2xl font-bold mb-4">{{ __('messages.edit_program_name') }}</h1>
-    <form action="{{ secure_url(route('admin.program-names.update', $programName, false)) }}" method="POST" class="space-y-4">
+    <form action="{{ secure_route('admin.program-names.update', $programName) }}" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
         <div>

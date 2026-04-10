@@ -38,7 +38,7 @@
             </section>
         @endif
 
-        <form action="{{ secure_url(route('admin.login.post', [], false)) }}" method="POST" class="space-y-6" autocomplete="off" aria-label="{{ __('messages.admin_login_title') }}">
+        <form action="{{ secure_route('admin.login.post') }}" method="POST" class="space-y-6" autocomplete="off" aria-label="{{ __('messages.admin_login_title') }}">
             @csrf
             <div>
                 <label for="phone" class="block text-sm font-medium text-gray-700">{{ __('messages.admin_phone_number') }}</label>

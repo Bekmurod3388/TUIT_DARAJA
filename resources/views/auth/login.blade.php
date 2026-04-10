@@ -74,7 +74,7 @@
                 </div>
             @endif
 
-            <form class="space-y-6" action="{{ secure_url(route('login.post', [], false)) }}" method="POST">
+            <form class="space-y-6" action="{{ secure_route('login.post') }}" method="POST">
                 @csrf
                 <div>
                     <label for="phone" class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.phone_number') }}</label>

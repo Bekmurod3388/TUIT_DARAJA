@@ -72,7 +72,7 @@
             <div class="flex justify-center border-t border-slate-200 dark:border-slate-700 pt-4">
                 @include('components.navbar-toggles')
             </div>
-            <form method="POST" action="{{ secure_url(route('logout', [], false)) }}">
+            <form method="POST" action="{{ secure_route('logout') }}">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center px-4 py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-red-600 hover:border-red-200 rounded-xl font-medium transition-all duration-200 shadow-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-red-500/10 dark:hover:text-red-400 dark:hover:border-red-500/30">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,15 +112,14 @@
             </div>
 
             <!-- Slide-over Drawer -->
-            <div x-show="open"
-                 class="fixed inset-0 z-50 overflow-hidden"
+            <div id="application-modal"
+                 class="fixed inset-0 z-50 overflow-hidden {{ $errors->any() ? '' : 'hidden' }}"
                  aria-labelledby="slide-over-title"
                  role="dialog"
-                 aria-modal="true"
-                 style="display: none;">
+                 aria-modal="true">
 
                 <!-- Background overlay and Blur -->
-                <div x-show="open"
+                <div
                      x-transition:enter="ease-in-out duration-300"
                      x-transition:enter-start="opacity-0"
                      x-transition:enter-end="opacity-100"
@@ -128,25 +127,25 @@
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
                      class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity dark:bg-slate-900/80"
-                     x-on:click="open = false"
+                     data-close-application-modal
                      aria-hidden="true"></div>
 
-                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
-                    <!-- Drawer panel -->
-                    <div x-show="open"
+                <div class="fixed inset-0 z-10 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+                    <!-- Modal panel -->
+                    <div
                          x-transition:enter="transform transition ease-in-out duration-300 sm:duration-500"
-                         x-transition:enter-start="translate-x-full"
-                         x-transition:enter-end="translate-x-0"
+                         x-transition:enter-start="scale-95 opacity-0"
+                         x-transition:enter-end="scale-100 opacity-100"
                          x-transition:leave="transform transition ease-in-out duration-300 sm:duration-500"
-                         x-transition:leave-start="translate-x-0"
-                         x-transition:leave-end="translate-x-full"
-                         class="pointer-events-auto w-screen max-w-4xl">
+                         x-transition:leave-start="scale-100 opacity-100"
+                         x-transition:leave-end="scale-95 opacity-0"
+                         class="pointer-events-auto my-auto flex max-h-[88vh] w-[96vw] max-w-[1680px]">
 
-                        <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-2xl dark:bg-slate-800">
-                            <div class="px-4 py-6 sm:px-8 flex-1">
-                                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 dark:border-slate-700">
+                        <div class="flex w-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+                            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
+                                <div class="sticky top-0 z-10 mb-6 flex items-center justify-between border-b border-slate-100 bg-white/95 pb-4 pt-1 backdrop-blur dark:border-slate-700 dark:bg-slate-800/95">
                                     <h3 class="text-2xl leading-6 font-bold text-slate-900 dark:text-white" id="modal-title">{{ __('messages.enter_application_data') }}</h3>
-                                    <button type="button" x-on:click="open = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full p-2 transition-colors dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white dark:bg-slate-700/50">
+                                    <button type="button" data-close-application-modal class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full p-2 transition-colors dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white dark:bg-slate-700/50">
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -165,7 +164,7 @@
                                         </div>
                                     @endif
 
-                                    <form method="POST" action="{{ secure_url(route('applications.store', [], false)) }}" enctype="multipart/form-data" class="space-y-8">
+                                    <form method="POST" action="{{ secure_route('applications.store') }}" enctype="multipart/form-data" class="space-y-8">
                                         @csrf
                                         
                                         <!-- Talabgor ma'lumotlari -->
@@ -226,7 +225,7 @@
                                         </div>
 
                                         <!-- Tashkilot va hujjatlar -->
-                                        <div x-data="{ org: '{{ old('organization_type', 'other') }}' }">
+                                        <div>
                                             <h4 class="text-lg font-bold text-slate-800 mb-4 dark:text-white">
                                                 {{ __('messages.organization_files') }}
 
@@ -235,69 +234,69 @@
                                             <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 dark:bg-slate-900/50 dark:border-slate-700">
                                                 <div class="flex items-center gap-6 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
                                                     <label class="flex items-center cursor-pointer group">
-                                                        <input type="radio" name="organization_type" value="uzmu" x-model="org" class="w-5 h-5 text-indigo-600 border-gray-300 focus:ring-indigo-500 rounded-full dark:bg-slate-800 dark:border-slate-600 dark:checked:bg-indigo-500" required>
+                                                        <input type="radio" name="organization_type" value="uzmu" class="w-5 h-5 text-indigo-600 border-gray-300 focus:ring-indigo-500 rounded-full dark:bg-slate-800 dark:border-slate-600 dark:checked:bg-indigo-500" required {{ old('organization_type', 'other') === 'uzmu' ? 'checked' : '' }}>
                                                         <span class="ml-2.5 font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors dark:text-slate-300 dark:group-hover:text-indigo-400">{{ __('messages.tuit_employee') }}</span>
                                                     </label>
                                                     <label class="flex items-center cursor-pointer group">
-                                                        <input type="radio" name="organization_type" value="other" x-model="org" class="w-5 h-5 text-indigo-600 border-gray-300 focus:ring-indigo-500 rounded-full dark:bg-slate-800 dark:border-slate-600 dark:checked:bg-indigo-500" required>
+                                                        <input type="radio" name="organization_type" value="other" class="w-5 h-5 text-indigo-600 border-gray-300 focus:ring-indigo-500 rounded-full dark:bg-slate-800 dark:border-slate-600 dark:checked:bg-indigo-500" required {{ old('organization_type', 'other') === 'other' ? 'checked' : '' }}>
                                                         <span class="ml-2.5 font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors dark:text-slate-300 dark:group-hover:text-indigo-400">{{ __('messages.other_organization') }}</span>
                                                     </label>
                                                 </div>
 
                                                 <!-- TATU uchun -->
-                                                <div x-show="org === 'uzmu'" x-transition>
+                                                <div id="org-section-uzmu" class="{{ old('organization_type', 'other') === 'uzmu' ? '' : 'hidden' }}">
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.phone_number') }}</label>
-                                                            <input type="text" name="phone" :disabled="org !== 'uzmu'" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" placeholder="+998 XX XXX-XX-XX" value="{{ old('phone', $user->phone ?? '') }}">
+                                                            <input type="text" name="phone" data-org-manage="true" data-org-required="false" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" placeholder="+998 XX XXX-XX-XX" value="{{ old('phone', $user->phone ?? '') }}">
                                                         </div>
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.oac_bulletin') }} <span class="text-slate-400 font-normal dark:text-slate-500">(PDF)</span></label>
-                                                            <input type="file" name="oac_file" :disabled="org !== 'uzmu'" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
+                                                            <input type="file" name="oac_file" data-org-manage="true" data-org-required="false" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
                                                         </div>
                                                         <div class="md:col-span-2">
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between dark:text-slate-300">
                                                                 <span>{{ __('messages.work_order') }} <span class="text-slate-400 font-normal dark:text-slate-500">(PDF)</span></span>
                                                                 <span class="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded dark:bg-amber-500/10 dark:text-amber-400">*Tayanch doktorantlar uchun majburiy emas</span>
                                                             </label>
-                                                            <input type="file" name="work_order_file" :disabled="org !== 'uzmu'" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
+                                                            <input type="file" name="work_order_file" data-org-manage="true" data-org-required="false" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <!-- Boshqa tashkilot uchun -->
-                                                <div x-show="org === 'other'" x-transition>
+                                                <div id="org-section-other" class="{{ old('organization_type', 'other') === 'other' ? '' : 'hidden' }}">
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">Tashkilot nomi <span class="text-red-500">*</span></label>
-                                                            <input type="text" name="organization" :required="org === 'other'" :disabled="org !== 'other'" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" value="{{ old('organization') }}">
+                                                            <input type="text" name="organization" data-org-manage="true" data-org-required="true" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" value="{{ old('organization') }}">
                                                         </div>
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.phone_number') }}</label>
-                                                            <input type="text" name="phone" :disabled="org !== 'other'" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" placeholder="+998 XX XXX-XX-XX" value="{{ old('phone', $user->phone ?? '') }}">
+                                                            <input type="text" name="phone" data-org-manage="true" data-org-required="false" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" placeholder="+998 XX XXX-XX-XX" value="{{ old('phone', $user->phone ?? '') }}">
                                                         </div>
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.oac_bulletin') }} <span class="text-slate-400 font-normal dark:text-slate-500">(PDF)</span></label>
-                                                            <input type="file" name="oac_file" :disabled="org !== 'other'" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
+                                                            <input type="file" name="oac_file" data-org-manage="true" data-org-required="false" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
                                                         </div>
                                                         <div>
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.direction_letter') }} <span class="text-red-500">*</span> <span class="text-slate-400 font-normal dark:text-slate-500">(PDF)</span></label>
-                                                            <input type="file" name="direction_file" :required="org === 'other'" :disabled="org !== 'other'" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
+                                                            <input type="file" name="direction_file" data-org-manage="true" data-org-required="true" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-indigo-500/20 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/30" accept="application/pdf">
                                                         </div>
                                                         <div class="md:col-span-2 border-t border-slate-200 dark:border-slate-700 mt-2 pt-5">
                                                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between dark:text-slate-300">
                                                                 <div>{{ __('messages.receipt_copy') }} <span class="text-red-500">*</span> <span class="text-slate-400 font-normal dark:text-slate-500">(PDF/JPEG)</span></div>
                                                                 <span class="text-xs font-normal text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded dark:bg-emerald-500/10 dark:text-emerald-400">Qo'shimcha fanlar uchun to'lov olinmaydi</span>
                                                             </label>
-                                                            <input type="file" name="receipt_file" :required="org === 'other'" :disabled="org !== 'other'" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-emerald-500/20 dark:file:text-emerald-400 dark:hover:file:bg-emerald-500/30" accept="application/pdf,image/jpeg,image/png,image/jpg">
+                                                            <input type="file" name="receipt_file" data-org-manage="true" data-org-required="true" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-slate-300 rounded-lg bg-white dark:bg-slate-800 dark:border-slate-600 dark:file:bg-emerald-500/20 dark:file:text-emerald-400 dark:hover:file:bg-emerald-500/30" accept="application/pdf,image/jpeg,image/png,image/jpg">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="bg-slate-50 px-4 py-6 sm:px-8 flex flex-col sm:flex-row border-t border-slate-200 dark:bg-slate-900/50 dark:border-slate-700 justify-end gap-3 mt-8 -mx-4 sm:-mx-8 -mb-6 sm:-mb-8">
-                                            <button type="button" x-on:click="open = false" class="inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-2.5 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors w-full sm:w-auto dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+                                        <div class="sticky bottom-0 bg-slate-50 px-4 py-6 sm:px-8 flex flex-col sm:flex-row border-t border-slate-200 dark:bg-slate-900/95 dark:border-slate-700 justify-end gap-3 mt-8 -mx-4 sm:-mx-6 lg:-mx-10 xl:-mx-12 -mb-6 backdrop-blur">
+                                            <button type="button" data-close-application-modal class="inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-2.5 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors w-full sm:w-auto dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
                                                 {{ __('messages.cancel') }}
 
                                             </button>
@@ -339,7 +338,7 @@
                     </div>
 
                     @if(!$specalizations->isEmpty())
-                        <button type="button" x-on:click="open = true" class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
+                        <button type="button" data-open-application-modal class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
                             <svg class="h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -434,7 +433,7 @@
                                         </div>
                                         <p class="text-slate-500 font-medium dark:text-slate-400">{{ __('messages.no_applications') }}</p>
                                         @if(!$specalizations->isEmpty())
-                                            <button type="button" x-on:click="open = true" class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
+                                            <button type="button" data-open-application-modal class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
@@ -507,7 +506,7 @@
                         </div>
                         <p class="text-slate-500 font-medium text-sm dark:text-slate-400">{{ __('messages.no_applications') }}</p>
                         @if(!$specalizations->isEmpty())
-                            <button type="button" x-on:click="open = true" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
+                            <button type="button" data-open-application-modal class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -551,6 +550,63 @@
         if (typeof AOS !== 'undefined') {
             AOS.init({ once: true, duration: 600, easing: 'ease-out' });
         }
+
+        const applicationModal = document.getElementById('application-modal');
+        const openModalButtons = document.querySelectorAll('[data-open-application-modal]');
+        const closeModalButtons = document.querySelectorAll('[data-close-application-modal]');
+        const uzmuSection = document.getElementById('org-section-uzmu');
+        const otherSection = document.getElementById('org-section-other');
+        const orgRadios = document.querySelectorAll('input[name="organization_type"]');
+
+        function setSectionState(section, active) {
+            if (!section) {
+                return;
+            }
+
+            section.classList.toggle('hidden', !active);
+
+            section.querySelectorAll('[data-org-manage="true"]').forEach((field) => {
+                field.disabled = !active;
+                field.required = active && field.dataset.orgRequired === 'true';
+            });
+        }
+
+        function syncOrganizationSections() {
+            const selectedOrg = document.querySelector('input[name="organization_type"]:checked')?.value || 'other';
+            setSectionState(uzmuSection, selectedOrg === 'uzmu');
+            setSectionState(otherSection, selectedOrg === 'other');
+        }
+
+        function openApplicationModal() {
+            if (!applicationModal) {
+                return;
+            }
+
+            applicationModal.classList.remove('hidden');
+            syncOrganizationSections();
+        }
+
+        function closeApplicationModal() {
+            if (!applicationModal) {
+                return;
+            }
+
+            applicationModal.classList.add('hidden');
+        }
+
+        openModalButtons.forEach((button) => {
+            button.addEventListener('click', openApplicationModal);
+        });
+
+        closeModalButtons.forEach((button) => {
+            button.addEventListener('click', closeApplicationModal);
+        });
+
+        orgRadios.forEach((radio) => {
+            radio.addEventListener('change', syncOrganizationSections);
+        });
+
+        syncOrganizationSections();
         
         const specSelect = document.getElementById('specalization-select');
         const subjectSelect = document.getElementById('subject-select');

@@ -4,7 +4,7 @@
 @section('content')
 <div class="mx-auto mt-8 max-w-lg rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
     <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">{{ __('messages.new_program_name') }}</h1>
-    <form action="{{ secure_url(route('admin.program-names.store', [], false)) }}" method="POST" class="space-y-6">
+    <form action="{{ secure_route('admin.program-names.store') }}" method="POST" class="space-y-6">
         @csrf
         <div>
             <label for="name" class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">{{ __('messages.program_name') }}</label>

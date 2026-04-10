@@ -15,7 +15,7 @@
             </div>
         </div>
     @endif
-    <form method="POST" action="{{ secure_url(route('admin.programs.store', [], false)) }}">
+    <form method="POST" action="{{ secure_route('admin.programs.store') }}">
         @csrf
         <div class="mb-4">
             <label class="mb-1 block font-semibold text-slate-900 dark:text-white">{{ __('messages.subjects') }}</label>
