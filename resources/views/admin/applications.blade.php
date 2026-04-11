@@ -18,7 +18,7 @@
 @endphp
 <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
     <h1 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">{{ __('messages.applications') }}</h1>
-    <form method="GET" action="{{ route('admin.applications') }}" class="mb-6 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 md:grid-cols-4 dark:border-slate-700 dark:bg-slate-900/50">
+    <form method="GET" action="{{ secure_route('admin.applications') }}" class="mb-6 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 md:grid-cols-4 dark:border-slate-700 dark:bg-slate-900/50">
         <div>
             <label class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ __('messages.academic_year') }}</label>
             <select name="academic_year_name" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
@@ -40,7 +40,7 @@
             <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">{{ __('messages.apply_filters') }}</button>
         </div>
         <div class="flex items-end">
-            <a href="{{ route('admin.applications') }}" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">{{ __('messages.reset_filters') }}</a>
+            <a href="{{ secure_route('admin.applications') }}" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">{{ __('messages.reset_filters') }}</a>
         </div>
     </form>
     <div class="overflow-x-auto rounded-xl border border-slate-200/70 dark:border-slate-700">
@@ -67,7 +67,7 @@
                 <td class="px-4 py-3 text-center">{{ $app->academicYear->name ?? '-' }}</td>
                 <td class="px-4 py-3 text-center">{{ $app->academicYear?->semester === 'bahorgi' ? __('messages.spring_semester') : ($app->academicYear?->semester === 'kuzgi' ? __('messages.fall_semester') : '-') }}</td>
                 <td class="px-4 py-3 text-center">
-                    <a href="{{ route('admin.applications.show', $app->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">{{ __('messages.details') }}</a>
+                    <a href="{{ secure_route('admin.applications.show', $app->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">{{ __('messages.details') }}</a>
                 </td>
                 <td class="px-4 py-3 text-center">
                     <span class="inline-block min-w-[120px] rounded px-6 py-3 text-center text-base font-semibold {{ $statusColors[$app->status] ?? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200' }}">
