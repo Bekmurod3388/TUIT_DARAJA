@@ -28,6 +28,8 @@
         <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.full_name') }}:</span> {{ $application->last_name }} {{ $application->first_name }} {{ $application->middle_name }}</div>
         <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.phone_number') }}:</span> {{ $application->phone }}</div>
         <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.specialization') }}:</span> {{ $application->specalization->name ?? '-' }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.academic_year') }}:</span> {{ $application->academicYear->name ?? '-' }}</div>
+        <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.semester') }}:</span> {{ $application->academicYear?->semester === 'bahorgi' ? __('messages.spring_semester') : ($application->academicYear?->semester === 'kuzgi' ? __('messages.fall_semester') : '-') }}</div>
         <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.organization') }}:</span> {{ $application->organization }}</div>
         <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.subject_name') }}:</span> {{ $application->subject }}</div>
         <div><span class="font-semibold text-slate-900 dark:text-white">{{ __('messages.education_type') }}:</span> {{ $application->education_type }}</div>

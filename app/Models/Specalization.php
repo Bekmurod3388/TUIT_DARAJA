@@ -9,11 +9,16 @@ class Specalization extends Model
 {
     use HasFactory;
     protected $table = 'specalizations';
-    protected $fillable = ['code', 'name', 'description', 'is_visible', 'price', 'program_name_id'];
+    protected $fillable = ['code', 'name', 'description', 'is_visible', 'price', 'program_name_id', 'academic_year_id'];
 
     public function programName()
     {
         return $this->belongsTo(\App\Models\ProgramName::class);
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(\App\Models\AcademicYear::class);
     }
 
     public function subjects()

@@ -30,6 +30,8 @@ Route::get('/oneid/callback', [OneIdController::class, 'handleOneIdCallback'])->
 // --- User application routes ---
 Route::middleware('auth')->group(function () {
     Route::get('/my-applications', [\App\Http\Controllers\MyApplicationsController::class, 'index'])->name('my.applications');
+    Route::get('/applications/specalizations', [\App\Http\Controllers\MyApplicationsController::class, 'specalizations'])->name('applications.specalizations');
+    Route::get('/applications/specalizations/{specalization}/subjects', [\App\Http\Controllers\MyApplicationsController::class, 'subjects'])->name('applications.subjects');
     Route::post('/applications', [\App\Http\Controllers\MyApplicationsController::class, 'store'])->middleware('throttle:10,1')->name('applications.store');
     Route::get('/my-applications/{id}/edit', [\App\Http\Controllers\MyApplicationsController::class, 'edit'])->name('applications.edit');
     Route::post('/my-applications/{id}/update', [\App\Http\Controllers\MyApplicationsController::class, 'update'])
@@ -73,6 +75,13 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('/applications/{id}/status', [\App\Http\Controllers\Admin\ApplicationsController::class, 'updateStatus'])->name('admin.applications.updateStatus');
     Route::get('/applications/{id}', [\App\Http\Controllers\Admin\ApplicationsController::class, 'show'])->name('admin.applications.show');
     Route::post('/applications/{id}/score', [\App\Http\Controllers\Admin\ApplicationsController::class, 'setScore'])->name('admin.applications.setScore');
+
+    Route::get('/academic-years', [\App\Http\Controllers\Admin\AcademicYearsController::class, 'index'])->name('admin.academic-years.index');
+    Route::get('/academic-years/create', [\App\Http\Controllers\Admin\AcademicYearsController::class, 'create'])->name('admin.academic-years.create');
+    Route::post('/academic-years', [\App\Http\Controllers\Admin\AcademicYearsController::class, 'store'])->name('admin.academic-years.store');
+    Route::get('/academic-years/{id}/edit', [\App\Http\Controllers\Admin\AcademicYearsController::class, 'edit'])->name('admin.academic-years.edit');
+    Route::put('/academic-years/{id}', [\App\Http\Controllers\Admin\AcademicYearsController::class, 'update'])->name('admin.academic-years.update');
+    Route::delete('/academic-years/{id}', [\App\Http\Controllers\Admin\AcademicYearsController::class, 'destroy'])->name('admin.academic-years.destroy');
 
     Route::get('/subjects', [\App\Http\Controllers\Admin\SubjectsController::class, 'index'])->name('admin.subjects');
     Route::get('/subjects/create', [\App\Http\Controllers\Admin\SubjectsController::class, 'create'])->name('admin.subjects.create');

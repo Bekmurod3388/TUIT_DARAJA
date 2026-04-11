@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Specalization;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +27,10 @@ class ApplicationRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('applications', 'subject')->where(
-                    fn ($query) => $query->where('user_id', $this->user()?->id)
+                    fn ($query) => $query
+                        ->where('user_id', $this->user()?->id)
+                        ->where('specalization_id', $this->input('specalization_id'))
+                        ->where('academic_year_id', $this->selectedAcademicYearId())
                 ),
             ],
         ];
@@ -46,5 +50,18 @@ class ApplicationRequest extends FormRequest
             $rules['receipt_file'] = 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048';
         }
         return $rules;
+    }
+
+    private function selectedAcademicYearId(): ?int
+    {
+        $specalizationId = $this->input('specalization_id');
+
+        if (!$specalizationId) {
+            return null;
+        }
+
+        return Specalization::query()
+            ->whereKey($specalizationId)
+            ->value('academic_year_id');
     }
 }

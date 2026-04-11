@@ -18,6 +18,31 @@
 @endphp
 <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
     <h1 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">{{ __('messages.applications') }}</h1>
+    <form method="GET" action="{{ route('admin.applications') }}" class="mb-6 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 md:grid-cols-4 dark:border-slate-700 dark:bg-slate-900/50">
+        <div>
+            <label class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ __('messages.academic_year') }}</label>
+            <select name="academic_year_name" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                <option value="">{{ __('messages.all_academic_years') }}</option>
+                @foreach($academicYearNames as $academicYearName)
+                    <option value="{{ $academicYearName }}" @selected(($filters['academic_year_name'] ?? '') === $academicYearName)>{{ $academicYearName }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ __('messages.semester') }}</label>
+            <select name="semester" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                <option value="">{{ __('messages.all_semesters') }}</option>
+                <option value="bahorgi" @selected(($filters['semester'] ?? '') === 'bahorgi')>{{ __('messages.spring_semester') }}</option>
+                <option value="kuzgi" @selected(($filters['semester'] ?? '') === 'kuzgi')>{{ __('messages.fall_semester') }}</option>
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">{{ __('messages.apply_filters') }}</button>
+        </div>
+        <div class="flex items-end">
+            <a href="{{ route('admin.applications') }}" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">{{ __('messages.reset_filters') }}</a>
+        </div>
+    </form>
     <div class="overflow-x-auto rounded-xl border border-slate-200/70 dark:border-slate-700">
     <table class="w-full table-auto text-sm text-slate-700 dark:text-slate-200">
         <thead class="sticky top-0 z-10 bg-slate-50/90 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900/70 dark:text-slate-400">
@@ -25,6 +50,8 @@
                 <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.full_name') }}</th>
                 <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.phone_number') }}</th>
                 <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.specialization') }}</th>
+                <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.academic_year') }}</th>
+                <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.semester') }}</th>
                 <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.details') }}</th>
                 <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.status') }}</th>
                 <th class="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.action') }}</th>
@@ -37,6 +64,8 @@
                 <td class="px-4 py-3 text-center font-medium text-slate-900 dark:text-white">{{ $app->last_name }} {{ $app->first_name }} {{ $app->middle_name }}</td>
                 <td class="px-4 py-3 text-center">{{ $app->phone }}</td>
                 <td class="px-4 py-3 text-center">{{ $app->specalization->name ?? '-' }}</td>
+                <td class="px-4 py-3 text-center">{{ $app->academicYear->name ?? '-' }}</td>
+                <td class="px-4 py-3 text-center">{{ $app->academicYear?->semester === 'bahorgi' ? __('messages.spring_semester') : ($app->academicYear?->semester === 'kuzgi' ? __('messages.fall_semester') : '-') }}</td>
                 <td class="px-4 py-3 text-center">
                     <a href="{{ route('admin.applications.show', $app->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">{{ __('messages.details') }}</a>
                 </td>
@@ -72,7 +101,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="7" class="py-6 text-center text-slate-500 dark:text-slate-400">{{ __('messages.no_admin_applications') }}</td>
+                <td colspan="9" class="py-6 text-center text-slate-500 dark:text-slate-400">{{ __('messages.no_admin_applications') }}</td>
             </tr>
         @endforelse
         </tbody>

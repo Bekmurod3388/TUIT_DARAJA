@@ -13,9 +13,14 @@ class ApplicationFactory extends Factory
 
     public function definition()
     {
+        $specalization = Specalization::factory();
+
         return [
             'user_id' => User::factory(),
-            'specalization_id' => Specalization::factory(),
+            'specalization_id' => $specalization,
+            'academic_year_id' => function (array $attributes) {
+                return Specalization::query()->whereKey($attributes['specalization_id'])->value('academic_year_id');
+            },
             'organization' => $this->faker->company(),
             'subject' => $this->faker->word(),
             'status' => 'pending',

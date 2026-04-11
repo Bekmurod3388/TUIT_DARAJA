@@ -7,6 +7,17 @@
     <form method="POST" action="{{ secure_route('admin.programs.update', $program->id) }}">
         @csrf
         <div class="mb-4">
+            <label class="mb-1 block font-semibold text-slate-900 dark:text-white">{{ __('messages.academic_year') }}</label>
+            <select name="academic_year_id" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100" required>
+                <option value="">{{ __('messages.select') }}</option>
+                @foreach($academicYears as $academicYear)
+                    <option value="{{ $academicYear->id }}" @selected(old('academic_year_id', $program->academic_year_id) == $academicYear->id)>
+                        {{ $academicYear->name }} - {{ $academicYear->semester === 'bahorgi' ? __('messages.spring_semester') : __('messages.fall_semester') }}{{ $academicYear->is_active ? ' (' . __('messages.active') . ')' : '' }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-4">
             <label class="mb-1 block font-semibold text-slate-900 dark:text-white">{{ __('messages.program_name') }}</label>
             <select id="program-name-select" name="program_name_id" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100" required>
                 <option value="">{{ __('messages.select') }}</option>

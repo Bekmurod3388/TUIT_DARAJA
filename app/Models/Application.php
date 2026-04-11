@@ -12,6 +12,7 @@ class Application extends Model
     protected $fillable = [
         'user_id',
         'specalization_id',
+        'academic_year_id',
         'organization',
         'subject',
         'status',
@@ -42,6 +43,11 @@ class Application extends Model
     public function specalization()
     {
         return $this->belongsTo(Specalization::class);
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
     }
 
     public function paymeTransactions()

@@ -15,6 +15,7 @@ class ProgramRequest extends FormRequest
     {
         return [
             'program_name_id' => 'required|exists:program_names,id',
+            'academic_year_id' => 'required|exists:academic_years,id',
             'price' => 'required|integer|min:0',
             'description' => 'required|string',
             'subjects' => 'required|array',

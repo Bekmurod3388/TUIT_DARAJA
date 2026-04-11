@@ -13,6 +13,7 @@
             <tr>
                 <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">#</th>
                 <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.program_name') }}</th>
+                <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.academic_year') }}</th>
                 <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.program_code') }}</th>
                 <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.payment_amount_soum') }}</th>
                 <th class="border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">{{ __('messages.subjects') }}</th>
@@ -27,6 +28,15 @@
             <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30">
                 <td class="px-4 py-2 text-center">{{ $program->id }}</td>
                 <td class="px-4 py-2 text-center text-slate-900 dark:text-white">{{ $program->name }}</td>
+                <td class="px-4 py-2 text-center">
+                    <div class="font-medium">{{ $program->academicYear->name ?? '-' }}</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                        {{ $program->academicYear?->semester === 'bahorgi' ? __('messages.spring_semester') : ($program->academicYear?->semester === 'kuzgi' ? __('messages.fall_semester') : '-') }}
+                        @if($program->academicYear?->is_active)
+                            • {{ __('messages.active') }}
+                        @endif
+                    </div>
+                </td>
                 <td class="px-4 py-2 text-center"><span class="rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">{{ $program->code }}</span></td>
                 <td class="px-4 py-2 text-center">{{ number_format($program->price, 0, ',', ' ') }}</td>
                 <td class="px-4 py-2 text-center">
@@ -57,7 +67,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="9" class="py-6 text-center text-slate-500 dark:text-slate-400">{{ __('messages.no_programs') }}</td>
+                <td colspan="10" class="py-6 text-center text-slate-500 dark:text-slate-400">{{ __('messages.no_programs') }}</td>
             </tr>
         @endforelse
         </tbody>

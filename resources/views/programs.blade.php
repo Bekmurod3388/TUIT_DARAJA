@@ -107,6 +107,11 @@
                 <div data-aos="fade-right">
                     <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight dark:text-white">{{ __('messages.programs') }}</h1>
                     <p class="text-slate-500 mt-2 font-medium dark:text-slate-400">{{ __('messages.all_programs') }}</p>
+                    @if($programs->isNotEmpty() && $programs->first()?->academicYear)
+                        <p class="mt-1 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                            {{ __('messages.active_academic_year_label') }}: {{ $programs->first()->academicYear->name }} - {{ $programs->first()->academicYear->semester === 'bahorgi' ? __('messages.spring_semester') : __('messages.fall_semester') }}
+                        </p>
+                    @endif
                 </div>
             </div>
 

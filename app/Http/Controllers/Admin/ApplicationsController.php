@@ -3,16 +3,39 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicYear;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use App\Models\Application;
 
 class ApplicationsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $applications = Application::with(['user', 'specalization'])->latest()->get();
-        return view('admin.applications', compact('applications'));
+        $filters = [
+            'academic_year_name' => $request->string('academic_year_name')->toString(),
+            'semester' => $request->string('semester')->toString(),
+        ];
+
+        $applications = Application::with(['user', 'specalization', 'academicYear'])
+            ->when($filters['academic_year_name'] !== '', function ($query) use ($filters) {
+                $query->whereHas('academicYear', fn ($academicYearQuery) => $academicYearQuery
+                    ->where('name', $filters['academic_year_name']));
+            })
+            ->when($filters['semester'] !== '', function ($query) use ($filters) {
+                $query->whereHas('academicYear', fn ($academicYearQuery) => $academicYearQuery
+                    ->where('semester', $filters['semester']));
+            })
+            ->latest()
+            ->get();
+
+        $academicYearNames = AcademicYear::query()
+            ->select('name')
+            ->distinct()
+            ->orderByDesc('name')
+            ->pluck('name');
+
+        return view('admin.applications', compact('applications', 'academicYearNames', 'filters'));
     }
 
     public function updateStatus(Request $request, $id)
@@ -50,7 +73,7 @@ class ApplicationsController extends Controller
 
     public function show($id)
     {
-        $application = Application::with(['user', 'specalization'])->findOrFail($id);
+        $application = Application::with(['user', 'specalization', 'academicYear'])->findOrFail($id);
         return view('admin.applications-show', compact('application'));
     }
 }

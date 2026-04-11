@@ -198,11 +198,8 @@
                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-slate-50 p-5 rounded-xl border border-slate-100 dark:bg-slate-900/50 dark:border-slate-700">
                                                 <div>
                                                     <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.specalization') }}</label>
-                                                    <select name="specalization_id" id="specalization-select" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 text-slate-800 bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" required>
+                                                    <select name="specalization_id" id="specalization-select" data-specalizations-url="{{ route('applications.specalizations', [], false) }}" data-subjects-url-template="{{ route('applications.subjects', ['specalization' => '__ID__'], false) }}" data-old-value="{{ old('specalization_id') }}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 text-slate-800 bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" required>
                                                         <option value="">{{ __('messages.select') }}...</option>
-                                                        @foreach($specalizations as $spec)
-                                                            <option value="{{ $spec->id }}" data-subjects='@json($spec->subjects->pluck("fan", "fan_id"))'>{{ $spec->name }}</option>
-                                                        @endforeach
                                                     </select>
                                                 </div>
                                                 <div>
@@ -217,7 +214,7 @@
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{{ __('messages.subject_name') }}</label>
-                                                    <select name="subject" id="subject-select" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 text-slate-800 bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" required>
+                                                    <select name="subject" id="subject-select" data-old-value="{{ old('subject') }}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 text-slate-800 bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:ring-indigo-500" required>
                                                         <option value="">{{ __('messages.select_subject') }}</option>
                                                     </select>
                                                 </div>
@@ -335,9 +332,14 @@
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             {{ $applications->isEmpty() ? __('messages.no_applications') : __('messages.all_applications') }}
                         </p>
+                        @if($activeAcademicYear)
+                            <p class="mt-1 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                                {{ __('messages.active_academic_year_label') }}: {{ $activeAcademicYear->name }} - {{ $activeAcademicYear->semester === 'bahorgi' ? __('messages.spring_semester') : __('messages.fall_semester') }}
+                            </p>
+                        @endif
                     </div>
 
-                    @if(!$specalizations->isEmpty())
+                    @if($canCreateApplication)
                         <button type="button" data-open-application-modal class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg sm:w-auto">
                             <svg class="h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -355,6 +357,32 @@
                 </div>
             </div>
 
+            <form method="GET" action="{{ route('my.applications') }}" class="mb-6 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-sm md:grid-cols-4 dark:border-slate-700 dark:bg-slate-800/80">
+                <div>
+                    <label class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ __('messages.academic_year') }}</label>
+                    <select name="academic_year_name" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                        <option value="">{{ __('messages.all_academic_years') }}</option>
+                        @foreach($academicYearNames as $academicYearName)
+                            <option value="{{ $academicYearName }}" @selected(($filters['academic_year_name'] ?? '') === $academicYearName)>{{ $academicYearName }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ __('messages.semester') }}</label>
+                    <select name="semester" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                        <option value="">{{ __('messages.all_semesters') }}</option>
+                        <option value="bahorgi" @selected(($filters['semester'] ?? '') === 'bahorgi')>{{ __('messages.spring_semester') }}</option>
+                        <option value="kuzgi" @selected(($filters['semester'] ?? '') === 'kuzgi')>{{ __('messages.fall_semester') }}</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">{{ __('messages.apply_filters') }}</button>
+                </div>
+                <div class="flex items-end">
+                    <a href="{{ route('my.applications') }}" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">{{ __('messages.reset_filters') }}</a>
+                </div>
+            </form>
+
             <!-- Desktop Data Table -->
             <div class="hidden md:block w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/90" data-aos="fade-up" data-aos-delay="100">
                 <div class="overflow-x-auto">
@@ -364,6 +392,7 @@
                                 <th scope="col" class="px-6 py-4 font-semibold text-center w-16">ID</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-left">F.I.O</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-left">Yo‘nalish / Fan</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-left">{{ __('messages.academic_year') }}</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">To'lov holati</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">Natija</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">Amal</th>
@@ -386,6 +415,12 @@
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                         {{ $app->subject }}
 
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-800 dark:text-slate-200">{{ $app->academicYear->name ?? '-' }}</div>
+                                    <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                        {{ $app->academicYear?->semester === 'bahorgi' ? __('messages.spring_semester') : ($app->academicYear?->semester === 'kuzgi' ? __('messages.fall_semester') : '-') }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
@@ -426,13 +461,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="bg-transparent px-6 py-12 text-center">
+                                <td colspan="7" class="bg-transparent px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
                                         <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700/70">
                                             <svg class="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         </div>
                                         <p class="text-slate-500 font-medium dark:text-slate-400">{{ __('messages.no_applications') }}</p>
-                                        @if(!$specalizations->isEmpty())
+                                        @if($canCreateApplication)
                                             <button type="button" data-open-application-modal class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -476,6 +511,9 @@
                                 {{ $app->subject }}
 
                             </div>
+                            <div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                {{ $app->academicYear->name ?? '-' }} • {{ $app->academicYear?->semester === 'bahorgi' ? __('messages.spring_semester') : ($app->academicYear?->semester === 'kuzgi' ? __('messages.fall_semester') : '-') }}
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
@@ -505,7 +543,7 @@
                             <svg class="w-6 h-6 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
                         <p class="text-slate-500 font-medium text-sm dark:text-slate-400">{{ __('messages.no_applications') }}</p>
-                        @if(!$specalizations->isEmpty())
+                        @if($canCreateApplication)
                             <button type="button" data-open-application-modal class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-md">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -584,6 +622,7 @@
 
             applicationModal.classList.remove('hidden');
             syncOrganizationSections();
+            loadSpecalizations().then(updateSubjects);
         }
 
         function closeApplicationModal() {
@@ -610,22 +649,101 @@
         
         const specSelect = document.getElementById('specalization-select');
         const subjectSelect = document.getElementById('subject-select');
-        function updateSubjects() {
-            if(!specSelect) return;
-            const selected = specSelect.options[specSelect.selectedIndex];
-            const subjects = selected.getAttribute('data-subjects');
-            let options = '<option value="">Fan tanlang</option>';
-            if (subjects) {
-                const subjectsObj = JSON.parse(subjects);
-                for (const [id, name] of Object.entries(subjectsObj)) {
-                    options += `<option value="${name}">${name}</option>`;
-                }
+        let specalizationsLoaded = false;
+
+        async function loadSpecalizations() {
+            if (!specSelect || specalizationsLoaded) {
+                return;
             }
-            if(subjectSelect) subjectSelect.innerHTML = options;
+
+            const endpoint = specSelect.dataset.specalizationsUrl;
+
+            if (!endpoint) {
+                return;
+            }
+
+            const response = await fetch(endpoint, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const payload = await response.json();
+            const specalizations = Array.isArray(payload.specalizations) ? payload.specalizations : [];
+            const oldSpecalizationId = specSelect.dataset.oldValue || '';
+
+            specSelect.innerHTML = '<option value="">{{ __("messages.select") }}...</option>';
+
+            for (const specalization of specalizations) {
+                const option = document.createElement('option');
+                option.value = specalization.id;
+                option.textContent = specalization.name;
+
+                if (oldSpecalizationId && oldSpecalizationId === String(specalization.id)) {
+                    option.selected = true;
+                }
+
+                specSelect.appendChild(option);
+            }
+
+            specSelect.dataset.oldValue = '';
+            specalizationsLoaded = true;
         }
-        if(specSelect) {
+
+        async function updateSubjects() {
+            if (!specSelect || !subjectSelect) {
+                return;
+            }
+
+            const specalizationId = specSelect.value;
+            const routeTemplate = specSelect.dataset.subjectsUrlTemplate;
+            const oldSubject = subjectSelect.dataset.oldValue || '';
+
+            subjectSelect.innerHTML = '<option value="">{{ __("messages.select_subject") }}</option>';
+
+            if (!specalizationId || !routeTemplate) {
+                return;
+            }
+
+            const response = await fetch(routeTemplate.replace('__ID__', specalizationId), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const payload = await response.json();
+            const subjects = Array.isArray(payload.subjects) ? payload.subjects : [];
+
+            for (const subject of subjects) {
+                const option = document.createElement('option');
+                option.value = subject.name;
+                option.textContent = subject.name;
+
+                if (oldSubject && oldSubject === subject.name) {
+                    option.selected = true;
+                }
+
+                subjectSelect.appendChild(option);
+            }
+
+            subjectSelect.dataset.oldValue = '';
+        }
+
+        if (specSelect) {
             specSelect.addEventListener('change', updateSubjects);
-            updateSubjects();
+            loadSpecalizations().then(updateSubjects);
         }
     });
 </script>

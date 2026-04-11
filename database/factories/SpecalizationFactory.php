@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\AcademicYear;
 use App\Models\Specalization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\ProgramName;
@@ -14,6 +15,7 @@ class SpecalizationFactory extends Factory
     {
         return [
             'program_name_id' => ProgramName::inRandomOrder()->first()?->id ?? ProgramName::factory(),
+            'academic_year_id' => AcademicYear::query()->inRandomOrder()->value('id') ?? AcademicYear::factory(),
             'code' => $this->faker->unique()->numerify('SPC###'),
             'name' => $this->faker->word(),
             'description' => $this->faker->sentence(),

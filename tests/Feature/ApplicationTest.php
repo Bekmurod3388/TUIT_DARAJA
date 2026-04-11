@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\AcademicYear;
 use App\Models\User;
 use App\Models\Specalization;
 use App\Models\Application;
+use App\Models\Subject;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +23,14 @@ class ApplicationTest extends TestCase
     public function test_user_can_submit_application()
     {
         $user = User::factory()->create();
-        $spec = Specalization::factory()->create();
+        $academicYear = AcademicYear::create([
+            'name' => '2025/2026',
+            'semester' => 'bahorgi',
+            'is_active' => true,
+        ]);
+        $spec = Specalization::factory()->create([
+            'academic_year_id' => $academicYear->id,
+        ]);
         $this->actingAs($user);
         $response = $this->post('/applications', [
             'last_name' => 'Test',
@@ -50,13 +59,83 @@ class ApplicationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_specalizations_endpoint_deduplicates_same_named_visible_programs(): void
+    {
+        $user = User::factory()->create();
+        $academicYear = AcademicYear::create([
+            'name' => '2025/2026',
+            'semester' => 'bahorgi',
+            'is_active' => true,
+        ]);
+
+        Specalization::factory()->create([
+            'name' => 'Sun\'iy intellekt',
+            'is_visible' => true,
+            'academic_year_id' => $academicYear->id,
+        ]);
+
+        Specalization::factory()->create([
+            'name' => ' sun\'iy intellekt ',
+            'is_visible' => true,
+            'academic_year_id' => $academicYear->id,
+        ]);
+
+        $this->actingAs($user)
+            ->getJson('/applications/specalizations')
+            ->assertOk()
+            ->assertJsonCount(1, 'specalizations');
+    }
+
+    public function test_subjects_endpoint_merges_subjects_from_duplicate_specialization_names(): void
+    {
+        $user = User::factory()->create();
+        $academicYear = AcademicYear::create([
+            'name' => '2025/2026',
+            'semester' => 'bahorgi',
+            'is_active' => true,
+        ]);
+
+        $firstSpecalization = Specalization::factory()->create([
+            'name' => 'Data Science',
+            'is_visible' => true,
+            'academic_year_id' => $academicYear->id,
+        ]);
+
+        $secondSpecalization = Specalization::factory()->create([
+            'name' => ' data science ',
+            'is_visible' => true,
+            'academic_year_id' => $academicYear->id,
+        ]);
+
+        $math = Subject::factory()->create(['fan' => 'Matematika']);
+        $english = Subject::factory()->create(['fan' => 'Ingliz tili']);
+
+        $firstSpecalization->subjects()->attach($math->fan_id);
+        $secondSpecalization->subjects()->attach($english->fan_id);
+
+        $this->actingAs($user)
+            ->getJson("/applications/specalizations/{$firstSpecalization->id}/subjects")
+            ->assertOk()
+            ->assertJsonCount(2, 'subjects')
+            ->assertJsonFragment(['name' => 'Matematika'])
+            ->assertJsonFragment(['name' => 'Ingliz tili']);
+    }
+
     public function test_user_can_edit_application()
     {
         $user = User::factory()->create();
-        $spec = Specalization::factory()->create();
+        $academicYear = AcademicYear::create([
+            'name' => '2025/2026',
+            'semester' => 'bahorgi',
+            'is_active' => true,
+        ]);
+        $spec = Specalization::factory()->create([
+            'academic_year_id' => $academicYear->id,
+        ]);
         $app = Application::factory()->create([
             'user_id' => $user->id,
             'specalization_id' => $spec->id,
+            'academic_year_id' => $academicYear->id,
         ]);
         $this->actingAs($user);
         $response = $this->get('/my-applications/' . $app->id . '/edit');
@@ -68,10 +147,18 @@ class ApplicationTest extends TestCase
         config(['services.payme.merchant_id' => 'test-merchant']);
 
         $user = User::factory()->create();
-        $spec = Specalization::factory()->create();
+        $academicYear = AcademicYear::create([
+            'name' => '2025/2026',
+            'semester' => 'bahorgi',
+            'is_active' => true,
+        ]);
+        $spec = Specalization::factory()->create([
+            'academic_year_id' => $academicYear->id,
+        ]);
         $app = Application::factory()->create([
             'user_id' => $user->id,
             'specalization_id' => $spec->id,
+            'academic_year_id' => $academicYear->id,
         ]);
         $this->actingAs($user);
         $response = $this->get('/applications/' . $app->id . '/pay');
@@ -129,7 +216,14 @@ class ApplicationTest extends TestCase
         Carbon::setTestNow('2026-04-06 10:00:00');
 
         $user = User::factory()->create();
-        $spec = Specalization::factory()->create();
+        $academicYear = AcademicYear::create([
+            'name' => '2025/2026',
+            'semester' => 'bahorgi',
+            'is_active' => true,
+        ]);
+        $spec = Specalization::factory()->create([
+            'academic_year_id' => $academicYear->id,
+        ]);
 
         $this->actingAs($user)->post('/applications', [
             'last_name' => 'Test',
